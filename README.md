@@ -21,25 +21,25 @@ C'est aussi une démonstration d'ingénierie : un monolithe **modulaire** où ch
 
 ## Les 5 outils
 
-| Outil | Ce qu'il fait | Points techniques |
-|---|---|---|
-| **Secure Paste** | Partage un texte confidentiel via un lien qui s'autodétruit (après lecture ou expiration) | Hash signé, suppression après lecture, purge planifiée (scheduler) |
-| **JSON Mock API** | Transforme un objet JSON en endpoint public instantané pour tester un frontend | Cast Eloquent `json`, réponse `application/json` sur mesure, cache write-through |
-| **URL Shortener** | Raccourcit des liens et mesure chaque clic : navigateurs, pays, tendance 7 jours | Relation One-to-Many, tracking asynchrone (files d'attente), agrégats SQL, redirection en cache |
-| **Markdown Previewer** | Édite du Markdown avec rendu HTML temps réel, partageable et exportable | Parsing CommonMark, debounce côté client, double barrière anti-XSS (serveur + DOMPurify) |
-| **SVG Placeholder** | Génère des images de remplacement à la volée depuis une URL paramétrée | Routes contraintes par regex, whitelist de couleurs, cache HTTP + `304 Not Modified` |
+| Outil                  | Ce qu'il fait                                                                             | Points techniques                                                                               |
+| ---------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Secure Paste**       | Partage un texte confidentiel via un lien qui s'autodétruit (après lecture ou expiration) | Hash signé, suppression après lecture, purge planifiée (scheduler)                              |
+| **JSON Mock API**      | Transforme un objet JSON en endpoint public instantané pour tester un frontend            | Cast Eloquent `json`, réponse `application/json` sur mesure, cache write-through                |
+| **URL Shortener**      | Raccourcit des liens et mesure chaque clic : navigateurs, pays, tendance 7 jours          | Relation One-to-Many, tracking asynchrone (files d'attente), agrégats SQL, redirection en cache |
+| **Markdown Previewer** | Édite du Markdown avec rendu HTML temps réel, partageable et exportable                   | Parsing CommonMark, debounce côté client, double barrière anti-XSS (serveur + DOMPurify)        |
+| **SVG Placeholder**    | Génère des images de remplacement à la volée depuis une URL paramétrée                    | Routes contraintes par regex, whitelist de couleurs, cache HTTP + `304 Not Modified`            |
 
 ## Stack technique
 
-| Domaine | Choix |
-|---|---|
-| Backend | **Laravel 13** — monolithe modulaire |
-| Frontend | **React 19 + TypeScript** via **Inertia.js v3** |
-| Styling | **Tailwind CSS v4** + composants **Radix UI** |
-| Routes | **Wayfinder** — fonctions typées générées, zéro URL en dur |
-| Auth | **Fortify** |
-| Qualité | **Pest**, **PHPStan (Larastan)**, **Pint** (PSR-12) |
-| Build | **Vite** (vite-plus) |
+| Domaine  | Choix                                                      |
+| -------- | ---------------------------------------------------------- |
+| Backend  | **Laravel 13** — monolithe modulaire                       |
+| Frontend | **React 19 + TypeScript** via **Inertia.js v3**            |
+| Styling  | **Tailwind CSS v4** + composants **Radix UI**              |
+| Routes   | **Wayfinder** — fonctions typées générées, zéro URL en dur |
+| Auth     | **Fortify**                                                |
+| Qualité  | **Pest**, **PHPStan (Larastan)**, **Pint** (PSR-12)        |
+| Build    | **Vite** (vite-plus)                                       |
 
 ## Points d'architecture
 
@@ -67,13 +67,13 @@ composer dev        # serveur Laravel + Vite en parallèle
 
 ### Scripts utiles
 
-| Commande | Rôle |
-|---|---|
-| `composer dev` | Lance le serveur Laravel + Vite |
-| `composer test` | Pint + PHPStan + Pest (suite complète) |
-| `composer lint` | Correction automatique du style PHP (PSR-12) |
-| `npm run types:check` | Vérification TypeScript (`tsc --noEmit`) |
-| `npm run check` | Lint du frontend |
+| Commande              | Rôle                                         |
+| --------------------- | -------------------------------------------- |
+| `composer dev`        | Lance le serveur Laravel + Vite              |
+| `composer test`       | Pint + PHPStan + Pest (suite complète)       |
+| `composer lint`       | Correction automatique du style PHP (PSR-12) |
+| `npm run types:check` | Vérification TypeScript (`tsc --noEmit`)     |
+| `npm run check`       | Lint du frontend                             |
 
 ## Structure du projet
 
