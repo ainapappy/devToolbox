@@ -18,6 +18,8 @@ Route::prefix('tools')->name('tools.')->group(function () {
     Route::get('mock-api', [MockApiController::class, 'create'])->name('mock-api.index');
     Route::post('mock-api', [MockApiController::class, 'store'])->name('mock-api.store');
     Route::get('shortener', [UrlShortenerController::class, 'index'])->name('shortener.index');
+    Route::post('shortener', [UrlShortenerController::class, 'store'])->name('shortener.store');
+    Route::get('shortener/stats', [UrlShortenerController::class, 'stats'])->name('shortener.stats');
     Route::get('markdown', [MarkdownController::class, 'index'])->name('markdown.index');
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
 });
@@ -28,5 +30,8 @@ Route::get('api/mock/{slug}', [MockApiController::class, 'serve'])->name('mocks.
 // Lecture publique d'un paste (avertissement puis révélation).
 Route::get('p/{hash}', [PasteController::class, 'show'])->name('pastes.show');
 Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])->name('pastes.reveal');
+
+// Redirection des liens courts (cache + tracking asynchrone).
+Route::get('s/{code}', [UrlShortenerController::class, 'redirect'])->name('urls.redirect');
 
 require __DIR__.'/settings.php';

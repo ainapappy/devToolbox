@@ -55,3 +55,38 @@ export interface MockCreated {
 export interface MockCreateProps {
     created: MockCreated | null;
 }
+
+/* --- URL Shortener & Analytics --- */
+
+/** Lien court nouvellement créé (flash `created`). */
+export interface ShortenerCreated {
+    code: string;
+    target_url: string;
+}
+
+/** Props de la page principale URL Shortener. */
+export interface ShortenerIndexProps {
+    created: ShortenerCreated | null;
+}
+
+/** Une journée du graphique de clics. */
+export interface DailyClicks {
+    date: string;
+    count: number;
+}
+
+/** Statistiques agrégées côté serveur (agrégats SQL). */
+export interface ShortenerStats {
+    clicks_30d: number;
+    active_links: number;
+    top_browser: string | null;
+    top_browser_share: number | null;
+    top_country: string | null;
+    top_country_share: number | null;
+    daily: DailyClicks[];
+}
+
+/** Props de la page de statistiques URL Shortener. */
+export interface ShortenerStatsProps {
+    stats: ShortenerStats;
+}
