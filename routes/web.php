@@ -14,14 +14,18 @@ Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
 Route::prefix('tools')->name('tools.')->group(function () {
     Route::get('paste', [PasteController::class, 'create'])->name('paste.index');
-    Route::post('paste', [PasteController::class, 'store'])->name('paste.store');
+    Route::post('paste', [PasteController::class, 'store'])
+        ->middleware('throttle:20,1')->name('paste.store');
     Route::get('mock-api', [MockApiController::class, 'create'])->name('mock-api.index');
-    Route::post('mock-api', [MockApiController::class, 'store'])->name('mock-api.store');
+    Route::post('mock-api', [MockApiController::class, 'store'])
+        ->middleware('throttle:20,1')->name('mock-api.store');
     Route::get('shortener', [UrlShortenerController::class, 'index'])->name('shortener.index');
-    Route::post('shortener', [UrlShortenerController::class, 'store'])->name('shortener.store');
+    Route::post('shortener', [UrlShortenerController::class, 'store'])
+        ->middleware('throttle:20,1')->name('shortener.store');
     Route::get('shortener/stats', [UrlShortenerController::class, 'stats'])->name('shortener.stats');
     Route::get('markdown', [MarkdownController::class, 'index'])->name('markdown.index');
-    Route::post('markdown', [MarkdownController::class, 'store'])->name('markdown.store');
+    Route::post('markdown', [MarkdownController::class, 'store'])
+        ->middleware('throttle:10,1')->name('markdown.store');
     Route::get('markdown/{slug}', [MarkdownController::class, 'show'])->name('markdown.show');
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
 });
@@ -29,6 +33,7 @@ Route::prefix('tools')->name('tools.')->group(function () {
 // Génération d'images placeholder SVG (dimension contrainte par regex).
 Route::get('placeholder/{size}', [PlaceholderController::class, 'show'])
     ->where('size', '[0-9]{1,4}x[0-9]{1,4}')
+    ->middleware('throttle:60,1')
     ->name('placeholders.show');
 
 // Endpoint public d'un mock JSON (cache write-through à la création).
@@ -36,7 +41,8 @@ Route::get('api/mock/{slug}', [MockApiController::class, 'serve'])->name('mocks.
 
 // Lecture publique d'un paste (avertissement puis révélation).
 Route::get('p/{hash}', [PasteController::class, 'show'])->name('pastes.show');
-Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])->name('pastes.reveal');
+Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])
+    ->middleware('throttle:30,1')->name('pastes.reveal');
 
 // Redirection des liens courts (cache + tracking asynchrone).
 Route::get('s/{code}', [UrlShortenerController::class, 'redirect'])->name('urls.redirect');

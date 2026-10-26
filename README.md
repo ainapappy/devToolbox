@@ -49,6 +49,16 @@ C'est aussi une démonstration d'ingénierie : un monolithe **modulaire** où ch
 - **TypeScript strict** — props de pages Inertia typées (`PageProps`), types partagés serveur ↔ client, `any` banni.
 - **UX soignée** — thème sombre/clair persistant, transitions Inertia fluides, animations respectant `prefers-reduced-motion`, accessibilité clavier.
 
+## Tests & qualité
+
+- **Suite complète** : `composer test` (Pint + PHPStan/Larastan niveau 7 + Pest) — 85+ tests couvrant le parcours nominal et les cas d'erreur de chaque outil.
+- **Parcours vérifiés** : lecture unique destructrice (Secure Paste), service du cache (Mock API, redirections, placeholders), tracking asynchrone (job `TrackClick`), purge planifiée (`pastes:prune`, scheduler horaire), neutralisation XSS (Markdown serveur + client, échappement SVG), réponses `304 Not Modified`.
+- **Garde-fous en développement** : `Model::preventLazyLoading()` pour détecter les N+1 immédiatement, commandes destructives interdites en production, rate limiting sur tous les endpoints publics d'écriture.
+
+## Design
+
+Le design system complet (tokens, composants, animations) est documenté dans [`.knowledge/design/`](./.knowledge/design/) — ouvrir `index.html` via `file://` pour parcourir les maquettes des 5 outils (thème sombre/clair inclus).
+
 ## Démarrage rapide
 
 ```bash
