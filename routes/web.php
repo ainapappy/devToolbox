@@ -26,6 +26,11 @@ Route::prefix('tools')->name('tools.')->group(function () {
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
 });
 
+// Génération d'images placeholder SVG (dimension contrainte par regex).
+Route::get('placeholder/{size}', [PlaceholderController::class, 'show'])
+    ->where('size', '[0-9]{1,4}x[0-9]{1,4}')
+    ->name('placeholders.show');
+
 // Endpoint public d'un mock JSON (cache write-through à la création).
 Route::get('api/mock/{slug}', [MockApiController::class, 'serve'])->name('mocks.serve');
 
