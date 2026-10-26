@@ -90,3 +90,21 @@ export interface ShortenerStats {
 export interface ShortenerStatsProps {
     stats: ShortenerStats;
 }
+
+/* --- Markdown Previewer --- */
+
+/** Document nouvellement partagé (flash `created`). */
+export interface MarkdownCreated {
+    slug: string;
+}
+
+/** Props de la page éditeur Markdown. */
+export interface MarkdownIndexProps {
+    created: MarkdownCreated | null;
+}
+
+/** Props de la page d'un document partagé. */
+export interface MarkdownShowProps {
+    markdown: string;
+    html: string;
+}

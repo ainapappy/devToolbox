@@ -351,3 +351,78 @@
         transparent
     );
 }
+
+/* Rendu Markdown (maquette : .md-preview) */
+.md-preview h1 {
+    font-size: 1.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.md-preview h2 {
+    font-size: 1.15rem;
+    margin: 1.1rem 0 0.5rem;
+}
+
+.md-preview p {
+    color: var(--color-muted-foreground);
+    line-height: 1.65;
+    font-size: 0.9rem;
+}
+
+.md-preview strong {
+    color: var(--color-foreground);
+}
+
+.md-preview code {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.8rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.35rem;
+    background: color-mix(in srgb, var(--color-accent-1) 14%, transparent);
+    color: var(--color-accent-1);
+}
+
+.md-preview pre {
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    overflow-x: auto;
+}
+
+.md-preview ul,
+.md-preview ol {
+    margin: 0.5rem 0 0.5rem 1.2rem;
+    color: var(--color-muted-foreground);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    list-style: disc;
+}
+
+.md-preview ol {
+    list-style: decimal;
+}
+
+.md-preview blockquote {
+    border-left: 3px solid var(--color-accent-1);
+    padding-left: 0.75rem;
+    margin: 0.5rem 0;
+    color: var(--color-muted-foreground);
+    font-style: italic;
+}
+
+.md-preview a {
+    color: var(--color-accent-1);
+    text-decoration: underline;
+}
+
+.md-preview table {
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+}
+
+.md-preview th,
+.md-preview td {
+    border: 1px solid var(--color-border);
+    padding: 0.35rem 0.6rem;
+}

@@ -21,6 +21,8 @@ Route::prefix('tools')->name('tools.')->group(function () {
     Route::post('shortener', [UrlShortenerController::class, 'store'])->name('shortener.store');
     Route::get('shortener/stats', [UrlShortenerController::class, 'stats'])->name('shortener.stats');
     Route::get('markdown', [MarkdownController::class, 'index'])->name('markdown.index');
+    Route::post('markdown', [MarkdownController::class, 'store'])->name('markdown.store');
+    Route::get('markdown/{slug}', [MarkdownController::class, 'show'])->name('markdown.show');
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
 });
 
