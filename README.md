@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src=".knowledge/design/assets/icons/lightning-bolt.svg" width="42" alt="" style="vertical-align: middle"> &nbsp;# DevToolbox
+# DevToolbox
 
 **Une boîte à outils complète pour les développeurs, réunie dans une seule application.**
 
@@ -74,12 +74,6 @@ composer dev        # serveur Laravel + Vite en parallèle
 | `composer lint` | Correction automatique du style PHP (PSR-12) |
 | `npm run types:check` | Vérification TypeScript (`tsc --noEmit`) |
 | `npm run check` | Lint du frontend |
-
-## Aperçu de l'interface
-
-Des maquettes statiques fidèles au design system du projet sont incluses dans le dépôt — ouvrez `.knowledge/design/index.html` dans un navigateur :
-
-`Dashboard` → 5 outils → chaque outil avec ses états (formulaires, résultats, analytics).
 
 ## Structure du projet
 
