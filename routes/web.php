@@ -14,10 +14,15 @@ Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
 Route::prefix('tools')->name('tools.')->group(function () {
     Route::get('paste', [PasteController::class, 'create'])->name('paste.index');
+    Route::post('paste', [PasteController::class, 'store'])->name('paste.store');
     Route::get('mock-api', [MockApiController::class, 'create'])->name('mock-api.index');
     Route::get('shortener', [UrlShortenerController::class, 'index'])->name('shortener.index');
     Route::get('markdown', [MarkdownController::class, 'index'])->name('markdown.index');
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
 });
+
+// Lecture publique d'un paste (avertissement puis révélation).
+Route::get('p/{hash}', [PasteController::class, 'show'])->name('pastes.show');
+Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])->name('pastes.reveal');
 
 require __DIR__.'/settings.php';

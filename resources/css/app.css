@@ -72,9 +72,15 @@
     --color-tool-markdown: #e87ba4;
     --color-tool-placeholder: #1baf7a;
 
-    /* Animations du design system (maquette : .bg-glow, .reveal) */
+    /* Animations du design system (maquette : .bg-glow, .reveal, pills, chart) */
     --animate-drift: drift 18s ease-in-out infinite alternate;
     --animate-reveal: reveal-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    --animate-burn: burn 6s linear forwards;
+    --animate-pulse-dot: pulse-dot 1.6s ease-in-out infinite;
+    --animate-pop: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    --animate-float: float 5s ease-in-out infinite;
+    --animate-grow: grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    --animate-blink: blink 1s steps(1) infinite;
 
     @keyframes drift {
         from {
@@ -93,6 +99,46 @@
         to {
             opacity: 1;
             transform: none;
+        }
+    }
+
+    @keyframes burn {
+        from {
+            width: 100%;
+        }
+        to {
+            width: 0%;
+        }
+    }
+
+    @keyframes pulse-dot {
+        50% {
+            opacity: 0.35;
+            transform: scale(0.8);
+        }
+    }
+
+    @keyframes pop {
+        from {
+            transform: scale(0);
+        }
+    }
+
+    @keyframes float {
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @keyframes grow {
+        from {
+            transform: scaleY(0);
+        }
+    }
+
+    @keyframes blink {
+        50% {
+            opacity: 0;
         }
     }
 }
@@ -207,4 +253,101 @@
 .tool-card-arrow {
     color: var(--tool, var(--color-accent-1));
     transition: transform 0.25s ease;
+}
+
+/* Boutons / pills du design system (maquette : .btn, .btn.ghost, .option-pill) */
+.btn-gradient {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(
+        135deg,
+        var(--color-accent-1),
+        var(--color-accent-3)
+    );
+    background-size: 150% auto;
+    transition:
+        background-position 0.4s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn-gradient:hover {
+    background-position: right center;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -10px
+        color-mix(in srgb, var(--color-accent-1) 60%, transparent);
+}
+
+.btn-gradient:active {
+    transform: translateY(0);
+}
+
+.btn-gradient:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-foreground);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.btn-ghost:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(
+        in srgb,
+        var(--tool, var(--color-accent-1)) 40%,
+        transparent
+    );
+}
+
+.option-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-muted-foreground);
+    transition: all 0.2s ease;
+}
+
+.option-pill:hover {
+    transform: translateY(-2px);
+}
+
+.option-pill[aria-checked='true'] {
+    border-color: color-mix(
+        in srgb,
+        var(--tool, var(--color-accent-1)) 60%,
+        transparent
+    );
+    color: var(--color-foreground);
+    background: color-mix(
+        in srgb,
+        var(--tool, var(--color-accent-1)) 14%,
+        transparent
+    );
 }
