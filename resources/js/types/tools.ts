@@ -42,3 +42,16 @@ export interface PasteShowProps {
 export interface PasteRevealProps {
     content: string;
 }
+
+/* --- JSON Mock API --- */
+
+/** Endpoint d'un mock nouvellement créé (flash `created`). */
+export interface MockCreated {
+    slug: string;
+    status_code: number;
+}
+
+/** Props de la page de création JSON Mock API. */
+export interface MockCreateProps {
+    created: MockCreated | null;
+}
