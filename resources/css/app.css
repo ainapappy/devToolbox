@@ -187,3 +187,24 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Cartes d'outils (maquette : .card avec --tool) — élévation + glow coloré */
+.tool-card:hover {
+    transform: translateY(-5px);
+    border-color: color-mix(
+        in srgb,
+        var(--tool, var(--color-accent-1)) 40%,
+        transparent
+    );
+    box-shadow: 0 18px 40px -18px
+        color-mix(in srgb, var(--tool, var(--color-accent-1)) 35%, transparent);
+}
+
+.tool-card:hover .tool-card-arrow {
+    transform: translateX(5px);
+}
+
+.tool-card-arrow {
+    color: var(--tool, var(--color-accent-1));
+    transition: transform 0.25s ease;
+}
