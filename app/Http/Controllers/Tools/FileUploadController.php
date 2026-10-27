@@ -37,9 +37,9 @@ class FileUploadController extends Controller
     }
 
     /**
-     * Upload d'un à N fichiers : stockage sous uploads/ sur le disque
-     * configuré, puis une ligne en base par fichier. Les métadonnées sont
-     * renvoyées en JSON (XHR) ou en flash pour la navigation Inertia.
+     * Upload d'un à N fichiers, ouvert aux invités comme les autres outils
+     * du toolbox : stockage sous uploads/ sur le disque configuré, une ligne
+     * en base par fichier, rattaché au compte seulement si une session existe.
      *
      * @return JsonResponse|RedirectResponse
      */
@@ -51,7 +51,8 @@ class FileUploadController extends Controller
 
         foreach ($request->validated('files') as $file) {
             /** @var UploadedFile $file */
-            $upload = $request->user()->fileUploads()->create([
+            $upload = FileUpload::create([
+                'user_id' => $request->user()?->id,
                 'uuid' => (string) Str::uuid(),
                 'original_name' => $file->getClientOriginalName(),
                 'path' => $file->store('uploads', $disk),

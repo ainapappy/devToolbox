@@ -245,12 +245,13 @@ test('another user cannot destroy a file', function () {
         ->and(Storage::disk(uploadDisk())->exists($upload->path))->toBeTrue();
 });
 
-test('guests cannot upload nor destroy, but the download link is public', function () {
-    $upload = FileUpload::factory()->create();
-    Storage::disk(uploadDisk())->put($upload->path, 'contenu public');
+test('guests can upload anonymously, destroy stays reserved to the owner', function () {
+    $this->post(route('tools.upload.store'), [
+        'files' => [UploadedFile::fake()->createWithContent('anonyme.md', 'depot invite')],
+    ])->assertRedirect(route('tools.upload.index'));
 
-    $this->post(route('tools.upload.store'), ['files' => []])
-        ->assertRedirect(route('login'));
+    $upload = FileUpload::query()->sole();
+    expect($upload->user_id)->toBeNull();
 
     $this->delete(route('tools.upload.destroy', $upload->uuid))
         ->assertRedirect(route('login'));
@@ -259,7 +260,7 @@ test('guests cannot upload nor destroy, but the download link is public', functi
         ->assertOk()
         ->assertDownload($upload->original_name);
 
-    expect(Storage::disk(uploadDisk())->get($upload->path))->toBe('contenu public');
+    expect(Storage::disk(uploadDisk())->get($upload->path))->toBe('depot invite');
 });
 
 test('the File Drop tool is registered after SVG Placeholder', function () {
