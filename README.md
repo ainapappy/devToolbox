@@ -142,6 +142,6 @@ resources/js/pages/
 
 **DevToolbox** — conçu et développé avec soin.
 
-[ ainatrix.com ](https://ainatrix.com) &nbsp;·&nbsp; [ github.com/ainapappy/services ](https://github.com/ainapappy/services.git)
+[ ainatrix.com ](https://ainatrix.com) &nbsp;·&nbsp; [ github.com/ainapappy/devToolbox ](https://github.com/ainapappy/devToolbox.git)
 
 </div>
