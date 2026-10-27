@@ -7,7 +7,7 @@ test('dashboard is publicly accessible and lists the tools', function () {
     $response->assertInertia(
         fn ($page) => $page
             ->component('dashboard')
-            ->has('tools', 5)
+            ->has('tools', 6)
             ->has('tools.0', fn ($tool) => $tool
                 ->where('slug', 'paste')
                 ->where('name', 'Secure Paste')
@@ -26,4 +26,5 @@ test('each tool page is publicly accessible', function (string $uri) {
     '/tools/shortener',
     '/tools/markdown',
     '/tools/placeholder',
+    '/tools/upload',
 ]);

@@ -66,6 +66,16 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     }
 
     /**
+     * Fichiers déposés via l'outil File Drop (Phase 17).
+     *
+     * @return HasMany<FileUpload, $this>
+     */
+    public function fileUploads(): HasMany
+    {
+        return $this->hasMany(FileUpload::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>

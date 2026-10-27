@@ -64,9 +64,19 @@ export interface ShortenerCreated {
     target_url: string;
 }
 
+/** Lien court listé sur la page principale. */
+export interface ShortenerLink {
+    id: number;
+    code: string;
+    target_url: string;
+    clicks_count: number;
+    created_at: string;
+}
+
 /** Props de la page principale URL Shortener. */
 export interface ShortenerIndexProps {
     created: ShortenerCreated | null;
+    links: ShortenerLink[];
 }
 
 /** Une journée du graphique de clics. */
@@ -101,6 +111,33 @@ export interface MarkdownCreated {
 /** Props de la page éditeur Markdown. */
 export interface MarkdownIndexProps {
     created: MarkdownCreated | null;
+}
+
+/* --- File Drop --- */
+
+/** Métadonnées d'un fichier nouvellement envoyé (flash `uploaded`). */
+export interface FileUploadCreated {
+    uuid: string;
+    original_name: string;
+    mime_type: string;
+    size: number;
+    max_downloads: number | null;
+    expires_at: string | null;
+}
+
+/** Props de la page d'upload File Drop (limites de config/devtoolbox.php). */
+export interface UploadIndexProps {
+    maxSizeKb: number;
+    maxFiles: number;
+    allowedMimes: string[];
+    durations: string[];
+    downloadOptions: number[];
+}
+
+/** Props de la page de déverrouillage par mot de passe. */
+export interface UploadLockedProps {
+    uuid: string;
+    error: string | null;
 }
 
 /** Props de la page d'un document partagé. */

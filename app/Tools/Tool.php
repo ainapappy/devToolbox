@@ -67,6 +67,14 @@ final class Tool
                 color: '#1baf7a',
                 icon: 'image',
             ),
+            new self(
+                slug: 'upload',
+                name: 'File Drop',
+                description: 'Glissez vos fichiers, puis partagez un lien protégé : téléchargements limités, expiration et mot de passe facultatif.',
+                tags: ['Storage', 'Validation'],
+                color: '#f59e0b',
+                icon: 'upload',
+            ),
         ];
     }
 

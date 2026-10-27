@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\TwoFactorEmailCodeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Tools\FileUploadController;
 use App\Http\Controllers\Tools\MarkdownController;
 use App\Http\Controllers\Tools\MockApiController;
 use App\Http\Controllers\Tools\PasteController;
@@ -53,6 +54,16 @@ Route::prefix('tools')->name('tools.')->middleware('verified-if-auth')->group(fu
         ->middleware('throttle:10,1')->name('markdown.store');
     Route::get('markdown/{slug}', [MarkdownController::class, 'show'])->name('markdown.show');
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
+    Route::get('upload', [FileUploadController::class, 'index'])->name('upload.index');
+    Route::post('upload', [FileUploadController::class, 'store'])
+        ->middleware(['auth', 'throttle:20,1'])->name('upload.store');
+    // Lien de partage public par UUID (façon Secure Paste) : expiration,
+    // quota et mot de passe vérifiés dans le contrôleur. Seule la
+    // suppression reste réservée au propriétaire.
+    Route::get('upload/{uuid}/download', [FileUploadController::class, 'download'])
+        ->middleware('throttle:30,1')->name('upload.download');
+    Route::delete('upload/{uuid}', [FileUploadController::class, 'destroy'])
+        ->middleware('auth')->name('upload.destroy');
 });
 
 // Génération d'images placeholder SVG (dimension contrainte par regex).

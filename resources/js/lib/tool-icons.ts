@@ -1,4 +1,4 @@
-import { Code, FileText, Image, Link2, Lock, Zap } from 'lucide-react';
+import { Code, FileText, Image, Link2, Lock, Upload, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 /**
@@ -11,6 +11,7 @@ const icons: Record<string, LucideIcon> = {
     'link-2': Link2,
     'file-text': FileText,
     image: Image,
+    upload: Upload,
 };
 
 const fallback: LucideIcon = Zap;
