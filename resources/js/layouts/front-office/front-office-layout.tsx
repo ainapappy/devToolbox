@@ -13,8 +13,8 @@ export default function FrontOfficeLayout({ children }: AppLayoutProps) {
                 aria-hidden
                 className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
             >
-                <div className="absolute -top-[12vw] -left-[8vw] size-[45vw] animate-drift rounded-full bg-accent-1 opacity-20 blur-[120px]" />
-                <div className="absolute -right-[10vw] -bottom-[14vw] size-[45vw] animate-drift rounded-full bg-accent-3 opacity-20 blur-[120px] [animation-delay:-9s]" />
+                <div className="absolute -top-[12vw] -left-[8vw] size-[45vw] animate-drift rounded-full bg-accent-1 opacity-[0.22] blur-[120px]" />
+                <div className="absolute -right-[10vw] -bottom-[14vw] size-[45vw] animate-drift rounded-full bg-accent-3 opacity-[0.22] blur-[120px] [animation-delay:-9s]" />
             </div>
 
             <FrontNav />

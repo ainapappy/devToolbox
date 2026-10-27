@@ -234,7 +234,9 @@
     }
 
     body {
-        @apply bg-background text-foreground;
+        /* Fond porté par html (app.blade.php) : un body opaque se peindrait
+           APRÈS les éléments en z négatif et masquerait le halo du layout. */
+        @apply text-foreground;
     }
 }
 
@@ -480,15 +482,20 @@
     padding: 0.35rem 0.6rem;
 }
 
-/* Bloc de code en médaillon (maquette : .code) — --background seul est
-   invisible sur une carte en thème clair (#f9f9f7 sur #fcfcfb) : on creuse
-   avec un mix du foreground, lisible dans les deux thèmes. */
+/* Bloc de code en médaillon (maquette : .code, fond --bg-page).
+   En clair, --background est invisible sur la carte (#f9f9f7 sur
+   #fcfcfb) : on creuse avec un mix du foreground. En sombre, on
+   reprend le fond exact de la maquette. */
 .code-well {
     background: color-mix(
         in srgb,
         var(--color-foreground) 3%,
         var(--color-background)
     );
+}
+
+.dark .code-well {
+    background: var(--color-background);
 }
 
 /* Coloration syntaxique JSON (maquette : .j-key/.j-str/.j-num/.j-bool) */
