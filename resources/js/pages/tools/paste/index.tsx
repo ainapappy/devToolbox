@@ -123,7 +123,7 @@ export default function Index({ created }: PasteCreateProps) {
                             className="btn-ghost"
                         >
                             <Copy className="size-4" />
-                            {copied === shareUrl ? '✓ Copié !' : 'Copier'}
+                            {copied === shareUrl ? 'Copié !' : 'Copier'}
                         </button>
                     </div>
                     <p className="mt-3 text-sm text-muted-foreground">

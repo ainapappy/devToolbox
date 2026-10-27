@@ -33,7 +33,7 @@ export default function Reveal({ content }: PasteRevealProps) {
                         aria-label="Copier le secret"
                     >
                         <Copy className="size-4" />
-                        {copied === content ? '✓ Copié !' : 'Copier'}
+                        {copied === content ? 'Copié !' : 'Copier'}
                     </button>
                 </div>
                 <pre className="overflow-x-auto rounded-xl border border-border bg-background p-4 font-mono text-sm whitespace-pre-wrap text-foreground">

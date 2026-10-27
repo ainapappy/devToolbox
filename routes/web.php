@@ -56,7 +56,7 @@ Route::prefix('tools')->name('tools.')->middleware('verified-if-auth')->group(fu
     Route::get('placeholder', [PlaceholderController::class, 'index'])->name('placeholder.index');
     Route::get('upload', [FileUploadController::class, 'index'])->name('upload.index');
     Route::post('upload', [FileUploadController::class, 'store'])
-        ->middleware(['auth', 'throttle:20,1'])->name('upload.store');
+        ->middleware('throttle:20,1')->name('upload.store');
     // Lien de partage public par UUID (façon Secure Paste) : expiration,
     // quota et mot de passe vérifiés dans le contrôleur. Seule la
     // suppression reste réservée au propriétaire.

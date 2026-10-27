@@ -10,7 +10,9 @@ return new class extends Migration
     {
         Schema::create('file_uploads', function (Blueprint $table): void {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            // Nullable : les invités peuvent uploader comme pour les pastes ;
+            // le fichier n'est rattaché à un compte que si une session existe.
+            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->uuid('uuid')->unique();
             $table->string('original_name', 255);
             $table->string('path', 255);

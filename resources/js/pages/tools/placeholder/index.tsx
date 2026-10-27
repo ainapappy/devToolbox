@@ -203,7 +203,7 @@ export default function Index() {
                             ) : (
                                 <Copy className="size-4" />
                             )}
-                            {copied === url ? '✓ Copié !' : 'Copier l’URL'}
+                            {copied === url ? 'Copié !' : 'Copier l’URL'}
                         </button>
                     </div>
                     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -221,7 +221,7 @@ export default function Index() {
                             ) : (
                                 <Copy className="size-4" />
                             )}
-                            {copied === imgTag ? '✓ Copié !' : 'Copier <img>'}
+                            {copied === imgTag ? 'Copié !' : 'Copier <img>'}
                         </button>
                     </div>
                 </div>

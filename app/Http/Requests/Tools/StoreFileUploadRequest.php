@@ -3,7 +3,9 @@
 namespace App\Http\Requests\Tools;
 
 use Carbon\CarbonInterface;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Validation\Rule;
 
 class StoreFileUploadRequest extends FormRequest
@@ -23,13 +25,19 @@ class StoreFileUploadRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return $this->user() !== null;
+        // Ouvert aux invités, comme les autres outils du toolbox ;
+        // la propriété est simplement rattachée quand une session existe.
+        return true;
     }
 
     /**
      * Règles pilotées par config/devtoolbox.php : aucune limite codée en dur.
+     * Les types sont validés par liste blanche d'extensions (le même contrat
+     * que la validation client) : la règle `mimes` native passe par la
+     * signature de contenu et rejette à tort les formats texte (md, csv...)
+     * selon l'environnement PHP.
      *
-     * @return array<string, list<string>>
+     * @return array<string, list<string>|callable>
      */
     public function rules(): array
     {
@@ -38,7 +46,17 @@ class StoreFileUploadRequest extends FormRequest
             'files.*' => [
                 'file',
                 'max:'.$this->maxSizeKb(),
-                'mimes:'.$this->allowedMimes(),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    if (! $value instanceof UploadedFile) {
+                        return;
+                    }
+
+                    $extension = strtolower($value->getClientOriginalExtension());
+
+                    if (! in_array($extension, $this->allowedExtensions(), true)) {
+                        $fail(__('validation.mimes', ['values' => implode(', ', $this->allowedExtensions())]));
+                    }
+                },
             ],
             'max_downloads' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'expiration' => ['nullable', Rule::in(self::DURATIONS)],
@@ -63,11 +81,16 @@ class StoreFileUploadRequest extends FormRequest
     }
 
     /**
-     * Extensions autorisées, au format de la règle `mimes`.
+     * Extensions autorisées (liste blanche config, minuscules).
+     *
+     * @return list<string>
      */
-    private function allowedMimes(): string
+    private function allowedExtensions(): array
     {
-        return implode(',', (array) config('devtoolbox.uploads.allowed_mimes'));
+        return array_map(
+            fn (string $extension): string => strtolower(trim($extension)),
+            (array) config('devtoolbox.uploads.allowed_mimes'),
+        );
     }
 
     /**

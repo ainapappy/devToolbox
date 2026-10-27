@@ -335,7 +335,7 @@ export default function Index({
                             ) : (
                                 <Copy className="size-4" />
                             )}
-                            {copied === shareUrl ? '✓ Copié !' : 'Copier'}
+                            {copied === shareUrl ? 'Copié !' : 'Copier'}
                         </button>
                     </div>
                     <p className="mt-3 text-[0.85rem] text-muted-foreground">

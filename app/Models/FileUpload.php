@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
  * téléchargements et mot de passe optionnel.
  *
  * @property int $id
- * @property int $user_id
+ * @property int|null $user_id
  * @property string $uuid
  * @property string $original_name
  * @property string $path
@@ -33,6 +33,7 @@ class FileUpload extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'uuid',
         'original_name',
         'path',
