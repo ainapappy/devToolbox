@@ -74,6 +74,16 @@ Auth complète sur Fortify, intégrée aux maquettes de [`.knowledge/design/`](.
 
 ![Mot de passe oublié sombre](docs/captures/forgot-password-dark.png)
 
+### Emails transactionnels
+
+Socle Blade 100 % tables/inline (600 px, dark mode basique), icônes héros en PNG hébergés, Mailables en file d'attente avec quota (5 emails auth/heure/utilisateur) — previews sur `/dev/mails` en local.
+
+| Vérification                                          | Code 2FA                                             | Nouvelle connexion                                       |
+| ----------------------------------------------------- | ---------------------------------------------------- | -------------------------------------------------------- |
+| ![Vérification](docs/captures/mails/verify-email.png) | ![Code 2FA](docs/captures/mails/two-factor-code.png) | ![Nouvelle connexion](docs/captures/mails/new-login.png) |
+
+Branchés sur les flux : vérification d'adresse et reset (notifications Fortify personnalisées), **bienvenue** après vérification (idempotent), **alerte nouvelle connexion** uniquement sur appareil inconnu (empreinte IP + user-agent), **confirmation de changement de mot de passe** (reset + profil), et **code 2FA par e-mail** — repli du TOTP, code à 6 chiffres à usage unique, hashé en cache, expiration 10 minutes, throttlé.
+
 ## Design
 
 Le design system complet (tokens, composants, animations) est documenté dans [`.knowledge/design/`](./.knowledge/design/) — ouvrir `index.html` via `file://` pour parcourir les maquettes des 5 outils (thème sombre/clair inclus).

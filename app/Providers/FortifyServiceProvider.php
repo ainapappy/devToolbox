@@ -112,7 +112,9 @@ class FortifyServiceProvider extends ServiceProvider
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
         ]));
 
-        Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
+        Fortify::twoFactorChallengeView(fn (Request $request) => Inertia::render('auth/two-factor-challenge', [
+            'emailStatus' => $request->session()->get('twoFactorEmailStatus'),
+        ]));
 
         Fortify::confirmPasswordView(fn () => Inertia::render('auth/confirm-password'));
     }

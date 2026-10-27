@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Auth\TwoFactorEmailCodeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Tools\MarkdownController;
 use App\Http\Controllers\Tools\MockApiController;
@@ -70,6 +71,11 @@ Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])
 
 // Redirection des liens courts (cache + tracking asynchrone).
 Route::get('s/{code}', [UrlShortenerController::class, 'redirect'])->name('urls.redirect');
+
+// Code 2FA par e-mail (repli du TOTP — Phase 16) : envoi throttlé.
+Route::post('two-factor/email-code', [TwoFactorEmailCodeController::class, 'store'])
+    ->middleware('throttle:1,1')
+    ->name('two-factor.email-code');
 
 // Prévisualisation des emails transactionnels (dev uniquement — Phase 15).
 if (app()->isLocal()) {

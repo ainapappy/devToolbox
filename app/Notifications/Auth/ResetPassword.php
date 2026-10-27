@@ -2,33 +2,23 @@
 
 namespace App\Notifications\Auth;
 
+use App\Mails\ResetPasswordMail;
 use Illuminate\Auth\Notifications\ResetPassword as BaseResetPassword;
-use Illuminate\Notifications\Messages\MailMessage;
 
 /**
- * Notification de réinitialisation de mot de passe aux couleurs DevToolbox.
- * Le lien est signé et son expiration est affichée dans l'e-mail (Phase 11).
+ * Notification de réinitialisation de mot de passe branchée sur le Mailable
+ * DevToolbox (markdown mails/reset-password — Phase 16).
+ * Lien signé à usage unique, expiration affichée.
  */
 class ResetPassword extends BaseResetPassword
 {
     /**
      * Build the mail representation of the notification.
      *
-     * @param  string  $url
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
-    protected function buildMailMessage($url)
+    public function toMail($notifiable): ResetPasswordMail
     {
-        $expire = (int) config(
-            'auth.passwords.'.config('auth.defaults.passwords').'.expire',
-            60,
-        );
-
-        return (new MailMessage)
-            ->subject('Réinitialisation de votre mot de passe')
-            ->markdown('emails.reset-password', [
-                'url' => $url,
-                'expire' => $expire,
-            ]);
+        return new ResetPasswordMail($notifiable, $this->resetUrl($notifiable));
     }
 }

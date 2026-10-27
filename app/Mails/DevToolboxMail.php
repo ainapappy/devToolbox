@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Mailable de base des emails transactionnels DevToolbox : `from` /
@@ -48,4 +49,17 @@ abstract class DevToolboxMail extends Mailable implements ShouldQueue
      * Sujet de l'email (français, ton DevToolbox).
      */
     abstract protected function mailSubject(): string;
+
+    /**
+     * Échec définitif après retries : journalisé sans aucun détail de
+     * sécurité (token, code) — Phase 16.
+     */
+    public function failed(?\Throwable $e): void
+    {
+        Log::error('Email transactionnel définitivement en échec.', [
+            'mailable' => static::class,
+            'user_id' => $this->user->getKey(),
+            'error' => $e?->getMessage(),
+        ]);
+    }
 }

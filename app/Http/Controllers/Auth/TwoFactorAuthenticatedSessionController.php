@@ -29,7 +29,8 @@ class TwoFactorAuthenticatedSessionController extends BaseTwoFactorAuthenticated
 
         if ($code = $request->validRecoveryCode()) {
             $user->replaceRecoveryCode($code);
-        } elseif (! $request->hasValidCode()) {
+        } elseif (! $request->hasValidCode()
+            && ! TwoFactorEmailCodeController::verifyAndConsume($request, (string) $request->input('code'))) {
             event(new TwoFactorAuthenticationFailed($user));
 
             return app(FailedTwoFactorLoginResponse::class)->toResponse($request);

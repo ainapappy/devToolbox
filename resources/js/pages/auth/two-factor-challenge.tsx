@@ -9,12 +9,17 @@ import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
 import { login } from '@/routes';
 import { store } from '@/routes/two-factor/login';
+import { emailCode as sendEmailCode } from '@/routes/two-factor';
 
 /**
  * Défi 2FA (maquette : two-factor.html) — code TOTP à 6 chiffres ou code de
  * récupération (consommé une seule fois), appareil de confiance 30 jours.
  */
-export default function TwoFactorChallenge() {
+type Props = {
+    emailStatus?: string;
+};
+
+export default function TwoFactorChallenge({ emailStatus }: Props) {
     const [code, setCode] = useState('');
     const [recoveryCode, setRecoveryCode] = useState('');
     const [usingRecovery, setUsingRecovery] = useState(false);
@@ -128,6 +133,29 @@ export default function TwoFactorChallenge() {
                                     ? "Utiliser un code d'authentification"
                                     : 'Utiliser un code de récupération'}
                             </button>
+
+                            <Form {...sendEmailCode.form()}>
+                                {({ processing }) => (
+                                    <button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="inline-flex w-full items-center justify-center gap-1.5 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
+                                    >
+                                        {processing ? (
+                                            <>
+                                                <Spinner className="size-3.5" />
+                                                Envoi…
+                                            </>
+                                        ) : (
+                                            'Recevoir le code par e-mail'
+                                        )}
+                                    </button>
+                                )}
+                            </Form>
+
+                            {emailStatus && (
+                                <Alert variant="info">{emailStatus}</Alert>
+                            )}
 
                             <p className="text-center text-sm text-muted-foreground">
                                 Un problème&nbsp;?{' '}
