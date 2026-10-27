@@ -6,7 +6,7 @@ import { useClipboard } from '@/hooks/use-clipboard';
 import { stats as statsRoute } from '@/routes/tools/shortener';
 import type { ShortenerIndexProps } from '@/types';
 
-export default function Index({ created }: ShortenerIndexProps) {
+export default function Index({ created, links }: ShortenerIndexProps) {
     const [copied, copy] = useClipboard();
     const { data, setData, post, processing, errors } = useForm<{
         target_url: string;
@@ -87,6 +87,54 @@ export default function Index({ created }: ShortenerIndexProps) {
                     </div>
                 )}
             </section>
+
+            {links.length > 0 && (
+                <section className="tool-card mb-8 animate-reveal rounded-2xl border border-border bg-card p-6 [animation-delay:.2s]">
+                    <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        <Link2 className="size-4" />
+                        Vos liens ({links.length})
+                    </h2>
+                    <ul className="divide-y divide-border">
+                        {links.map((link) => {
+                            const linkUrl = `${window.location.origin}/s/${link.code}`;
+
+                            return (
+                                <li
+                                    key={link.id}
+                                    className="flex flex-wrap items-center gap-3 py-3"
+                                >
+                                    <div className="min-w-0 flex-1">
+                                        <span className="font-mono text-sm text-foreground">
+                                            /s/{link.code}
+                                        </span>
+                                        <span className="block truncate text-xs text-muted-foreground">
+                                            {link.target_url}
+                                        </span>
+                                    </div>
+                                    <span className="shrink-0 font-mono text-xs text-muted-foreground">
+                                        {link.clicks_count}{' '}
+                                        {link.clicks_count > 1
+                                            ? 'clics'
+                                            : 'clic'}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => copy(linkUrl)}
+                                        className="btn-ghost shrink-0"
+                                        aria-label={`Copier /s/${link.code}`}
+                                    >
+                                        {copied === linkUrl ? (
+                                            <Check className="size-4" />
+                                        ) : (
+                                            <Copy className="size-4" />
+                                        )}
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                </section>
+            )}
 
             <section className="animate-reveal text-center [animation-delay:.3s]">
                 <a href={statsRoute().url} className="btn-ghost mx-auto">

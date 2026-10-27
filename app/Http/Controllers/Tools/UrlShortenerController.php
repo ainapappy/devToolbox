@@ -27,12 +27,26 @@ class UrlShortenerController extends Controller
     }
 
     /**
-     * Écran principal : formulaire + lien récemment créé.
+     * Écran principal : formulaire + liens créés.
      */
     public function index(): Response
     {
+        $links = Url::query()
+            ->withCount('clicks')
+            ->latest()
+            ->get()
+            ->map(fn (Url $url) => [
+                'id' => $url->id,
+                'code' => $url->code,
+                'target_url' => $url->target_url,
+                'clicks_count' => $url->clicks_count,
+                'created_at' => $url->created_at->toIso8601String(),
+            ])
+            ->all();
+
         return Inertia::render('tools/shortener/index', [
             'created' => session('created'),
+            'links' => $links,
         ]);
     }
 

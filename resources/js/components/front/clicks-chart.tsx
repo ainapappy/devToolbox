@@ -37,9 +37,12 @@ export function ClicksChart({ data }: { data: DailyClicks[] }) {
     const step = innerWidth / data.length;
     const barWidth = step * 0.6;
 
-    const yTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => ({
-        value: Math.round(max * ratio),
-        y: padding.top + innerHeight * (1 - ratio),
+    // Graduations entières et distinctes : pas de 1 jusqu'à 5, sinon 4 segments.
+    const tickCount = max <= 5 ? max : 4;
+    const tickStep = max / tickCount;
+    const yTicks = Array.from({ length: tickCount + 1 }, (_, i) => ({
+        value: Math.round(tickStep * i),
+        y: padding.top + innerHeight * (1 - i / tickCount),
     }));
 
     const handleMove = (event: MouseEvent<SVGRectElement>, index: number) => {
