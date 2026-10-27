@@ -54,7 +54,9 @@ test('a burn paste is readable exactly once', function () {
 
     expect(Paste::query()->whereKey($paste->getKey())->exists())->toBeFalse();
 
-    $this->post(route('pastes.reveal', $paste->hash))->assertNotFound();
+    $this->post(route('pastes.reveal', $paste->hash))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('tools/paste/expired'));
 });
 
 test('an expired paste shows the expired page', function () {
@@ -80,9 +82,14 @@ test('a GET on the reveal URL redirects to the warning page', function () {
         ->assertRedirect(route('pastes.show', $paste->hash));
 });
 
-test('an unknown hash returns 404', function () {
-    $this->get(route('pastes.show', str_repeat('x', 32)))->assertNotFound();
-    $this->post(route('pastes.reveal', str_repeat('x', 32)))->assertNotFound();
+test('an unknown or pruned hash shows the expired page', function () {
+    $this->get(route('pastes.show', str_repeat('x', 32)))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('tools/paste/expired'));
+
+    $this->post(route('pastes.reveal', str_repeat('x', 32)))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('tools/paste/expired'));
 });
 
 test('expired pastes are pruned by the scheduler command', function () {

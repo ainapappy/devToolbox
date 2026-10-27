@@ -49,9 +49,11 @@ class PasteController extends Controller
      */
     public function show(string $hash): Response
     {
-        $paste = Paste::query()->where('hash', $hash)->firstOrFail();
+        $paste = Paste::query()->where('hash', $hash)->first();
 
-        if ($paste->isExpired()) {
+        if ($paste === null || $paste->isExpired()) {
+            // Lien expiré, burn déjà lu ou prune passé : on informe, sans
+            // révéler si le hash a jamais existé.
             return Inertia::render('tools/paste/expired');
         }
 
@@ -66,12 +68,12 @@ class PasteController extends Controller
      */
     public function reveal(Request $request, string $hash): SymfonyResponse
     {
-        $paste = Paste::query()->where('hash', $hash)->firstOrFail();
+        $paste = Paste::query()->where('hash', $hash)->first();
 
-        if ($paste->isExpired()) {
-            // Lien périmé : page dédiée plutôt qu'une erreur. La ligne reste
-            // en base jusqu'au prune planifié (pastes:prune) pour que les
-            // visites suivantes voient la même information.
+        if ($paste === null || $paste->isExpired()) {
+            // Lien périmé ou introuvable : page dédiée plutôt qu'une erreur.
+            // La ligne reste en base jusqu'au prune planifié (pastes:prune)
+            // pour que les visites suivantes voient la même information.
             return Inertia::render('tools/paste/expired')->toResponse($request);
         }
 

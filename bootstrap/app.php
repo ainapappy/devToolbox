@@ -8,6 +8,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Session\TokenMismatchException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -34,4 +35,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // 419 sur la révélation d'un paste (session CSRF expirée pendant la
+        // lecture de l'avertissement) : retour à la page d'avertissement avec
+        // un jeton frais plutôt que l'erreur « Page Expired ».
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            if ($request->routeIs('pastes.reveal')) {
+                return redirect()->route('pastes.show', $request->route('hash'));
+            }
+        });
     })->create();
