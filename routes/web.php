@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('dev/auth-demo', 'auth/demo')->name('auth.demo');
 
 // Front-office public : dashboard + navigation des outils.
+// Les outils exigent une adresse vérifiée pour les utilisateurs connectés
+// (les invités restent acceptés — décision documentée dans .knowledge/prompts/001.md).
 Route::get('/', DashboardController::class)->name('home');
 Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-Route::prefix('tools')->name('tools.')->group(function () {
+Route::prefix('tools')->name('tools.')->middleware('verified-if-auth')->group(function () {
     Route::get('paste', [PasteController::class, 'create'])->name('paste.index');
     Route::post('paste', [PasteController::class, 'store'])
         ->middleware('throttle:20,1')->name('paste.store');

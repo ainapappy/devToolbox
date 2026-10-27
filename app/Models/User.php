@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Notifications\Auth\ResetPassword;
+use App\Notifications\Auth\VerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -42,6 +43,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new ResetPassword($token));
+    }
+
+    /**
+     * Envoie la notification de vérification personnalisée DevToolbox
+     * (markdown mail — Phase 12).
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyEmail);
     }
 
     /**

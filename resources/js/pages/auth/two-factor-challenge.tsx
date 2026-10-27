@@ -1,133 +1,147 @@
-import { Form, Head, setLayoutProps } from '@inertiajs/react';
-import { REGEXP_ONLY_DIGITS } from 'input-otp';
-import { useMemo, useState } from 'react';
-import InputError from '@/components/input-error';
-import { Button } from '@/components/ui/button';
+import { Form, Head, Link } from '@inertiajs/react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { Alert } from '@/components/auth/alert';
+import { AuthCard, AuthHeader } from '@/components/auth/auth-card';
+import { CheckboxField } from '@/components/auth/checkbox-field';
+import { OtpInput } from '@/components/auth/otp-input';
+import { Spinner } from '@/components/ui/spinner';
 import { Input } from '@/components/ui/input';
-import {
-    InputOTP,
-    InputOTPGroup,
-    InputOTPSlot,
-} from '@/components/ui/input-otp';
-import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
+import { login } from '@/routes';
 import { store } from '@/routes/two-factor/login';
 
+/**
+ * Défi 2FA (maquette : two-factor.html) — code TOTP à 6 chiffres ou code de
+ * récupération (consommé une seule fois), appareil de confiance 30 jours.
+ */
 export default function TwoFactorChallenge() {
-    const [showRecoveryInput, setShowRecoveryInput] = useState<boolean>(false);
-    const [code, setCode] = useState<string>('');
-
-    const authConfigContent = useMemo<{
-        title: string;
-        description: string;
-        toggleText: string;
-    }>(() => {
-        if (showRecoveryInput) {
-            return {
-                title: 'Recovery code',
-                description:
-                    'Please confirm access to your account by entering one of your emergency recovery codes.',
-                toggleText: 'login using an authentication code',
-            };
-        }
-
-        return {
-            title: 'Authentication code',
-            description:
-                'Enter the authentication code provided by your authenticator application.',
-            toggleText: 'login using a recovery code',
-        };
-    }, [showRecoveryInput]);
-
-    setLayoutProps({
-        title: authConfigContent.title,
-        description: authConfigContent.description,
-    });
-
-    const toggleRecoveryMode = (clearErrors: () => void): void => {
-        setShowRecoveryInput(!showRecoveryInput);
-        clearErrors();
-        setCode('');
-    };
+    const [code, setCode] = useState('');
+    const [recoveryCode, setRecoveryCode] = useState('');
+    const [usingRecovery, setUsingRecovery] = useState(false);
 
     return (
         <>
-            <Head title="Two-factor authentication" />
+            <Head title="Authentification à deux facteurs" />
 
-            <div className="space-y-6">
+            <AuthCard>
+                <AuthHeader
+                    icon={ShieldCheck}
+                    title="Authentification à deux facteurs"
+                    subtitle={
+                        usingRecovery
+                            ? "Saisissez un de vos codes de récupération d'urgence."
+                            : "Saisissez le code à 6 chiffres de votre application d'authentification."
+                    }
+                />
+
                 <Form
                     {...store.form()}
-                    className="space-y-4"
+                    className="grid gap-4"
                     resetOnError
-                    resetOnSuccess={!showRecoveryInput}
+                    resetOnSuccess={!usingRecovery}
                 >
-                    {({ errors, processing, clearErrors }) => (
+                    {({ processing, errors, clearErrors }) => (
                         <>
-                            {showRecoveryInput ? (
-                                <>
+                            {errors.code && (
+                                <Alert variant="error">{errors.code}</Alert>
+                            )}
+                            {errors.recovery_code && (
+                                <Alert variant="error">
+                                    {errors.recovery_code}
+                                </Alert>
+                            )}
+
+                            {usingRecovery ? (
+                                <div className="grid gap-1.5">
+                                    <label
+                                        htmlFor="recovery_code"
+                                        className="text-[0.8rem] font-semibold"
+                                    >
+                                        Code de récupération
+                                    </label>
                                     <Input
+                                        id="recovery_code"
                                         name="recovery_code"
                                         type="text"
-                                        placeholder="Enter recovery code"
-                                        autoFocus={showRecoveryInput}
                                         required
+                                        autoFocus
+                                        autoComplete="off"
+                                        placeholder="xxxxx-xxxxx"
+                                        className="h-11 rounded-xl bg-background text-center font-mono text-sm uppercase"
+                                        value={recoveryCode}
+                                        onChange={(e) =>
+                                            setRecoveryCode(e.target.value)
+                                        }
                                     />
-                                    <InputError
-                                        message={errors.recovery_code}
-                                    />
-                                </>
+                                </div>
                             ) : (
-                                <div className="flex flex-col items-center justify-center space-y-3 text-center">
-                                    <div className="flex w-full items-center justify-center">
-                                        <InputOTP
-                                            name="code"
-                                            maxLength={OTP_MAX_LENGTH}
-                                            value={code}
-                                            onChange={(value) => setCode(value)}
-                                            disabled={processing}
-                                            pattern={REGEXP_ONLY_DIGITS}
-                                            autoFocus
-                                        >
-                                            <InputOTPGroup>
-                                                {Array.from(
-                                                    { length: OTP_MAX_LENGTH },
-                                                    (_, index) => (
-                                                        <InputOTPSlot
-                                                            key={index}
-                                                            index={index}
-                                                        />
-                                                    ),
-                                                )}
-                                            </InputOTPGroup>
-                                        </InputOTP>
-                                    </div>
-                                    <InputError message={errors.code} />
+                                <div className="grid gap-1.5">
+                                    <span className="text-[0.8rem] font-semibold">
+                                        Code de vérification
+                                    </span>
+                                    <OtpInput
+                                        value={code}
+                                        onChange={setCode}
+                                        disabled={processing}
+                                    />
                                 </div>
                             )}
 
-                            <Button
-                                type="submit"
-                                className="w-full"
-                                disabled={processing}
-                            >
-                                Continue
-                            </Button>
+                            <CheckboxField
+                                id="trust"
+                                name="trust"
+                                label="Se souvenir de cet appareil pendant 30 jours"
+                            />
 
-                            <div className="text-center text-sm text-muted-foreground">
-                                <span>or you can </span>
-                                <button
-                                    type="button"
-                                    className="cursor-pointer text-foreground underline decoration-neutral-300 underline-offset-4 transition-colors duration-300 ease-out hover:decoration-current! dark:decoration-neutral-500"
-                                    onClick={() =>
-                                        toggleRecoveryMode(clearErrors)
-                                    }
+                            <button
+                                type="submit"
+                                disabled={processing}
+                                className="btn-gradient h-11 w-full rounded-xl"
+                            >
+                                {processing ? (
+                                    <>
+                                        <Spinner className="size-4" />
+                                        Vérification…
+                                    </>
+                                ) : (
+                                    <>
+                                        Vérifier le code
+                                        <ArrowRight
+                                            className="size-4"
+                                            aria-hidden
+                                        />
+                                    </>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setUsingRecovery((prev) => !prev);
+                                    clearErrors();
+                                    setCode('');
+                                    setRecoveryCode('');
+                                }}
+                                className="btn-ghost w-full justify-center"
+                            >
+                                {usingRecovery
+                                    ? "Utiliser un code d'authentification"
+                                    : 'Utiliser un code de récupération'}
+                            </button>
+
+                            <p className="text-center text-sm text-muted-foreground">
+                                Un problème&nbsp;?{' '}
+                                <Link
+                                    href={login()}
+                                    className="font-semibold text-accent-1 hover:underline"
                                 >
-                                    {authConfigContent.toggleText}
-                                </button>
-                            </div>
+                                    Retour à la connexion
+                                </Link>
+                            </p>
                         </>
                     )}
                 </Form>
-            </div>
+            </AuthCard>
         </>
     );
 }

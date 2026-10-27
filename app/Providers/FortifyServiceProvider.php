@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Actions\Fortify\CreateNewUser;
+use App\Actions\Fortify\RedirectIfTwoFactorAuthenticatable;
 use App\Actions\Fortify\ResetUserPassword;
+use App\Http\Controllers\Auth\TwoFactorAuthenticatedSessionController;
 use App\Http\Responses\Auth\NeutralFailedPasswordResetLinkResponse;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -13,9 +15,14 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
+use Laravel\Fortify\Actions\AttemptToAuthenticate;
+use Laravel\Fortify\Actions\CanonicalizeUsername;
+use Laravel\Fortify\Actions\EnsureLoginIsNotThrottled;
+use Laravel\Fortify\Actions\PrepareAuthenticatedSession;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticatedSessionController as BaseTwoFactorAuthenticatedSessionController;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -47,8 +54,34 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureActions(): void
     {
+        $this->configureTrustedDeviceFlow();
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+    }
+
+    /**
+     * Configure le flux « appareil de confiance » du défi 2FA (Phase 12) :
+     * contrôleur qui pose le cookie + étape de pipeline qui court-circuite
+     * le défi sur un appareil déjà approuvé.
+     */
+    private function configureTrustedDeviceFlow(): void
+    {
+        $this->app->bind(
+            BaseTwoFactorAuthenticatedSessionController::class,
+            TwoFactorAuthenticatedSessionController::class,
+        );
+
+        Fortify::authenticateThrough(function (Request $request) {
+            return array_filter([
+                config('fortify.limiters.login') ? null : EnsureLoginIsNotThrottled::class,
+                config('fortify.lowercase_usernames') ? CanonicalizeUsername::class : null,
+                Features::enabled(Features::twoFactorAuthentication())
+                    ? RedirectIfTwoFactorAuthenticatable::class
+                    : null,
+                AttemptToAuthenticate::class,
+                PrepareAuthenticatedSession::class,
+            ]);
+        });
     }
 
     /**
@@ -101,6 +134,12 @@ class FortifyServiceProvider extends ServiceProvider
 
         // Demande de lien de réinitialisation : 3 requêtes / minute / IP (Phase 11).
         RateLimiter::for('reset-link', fn (Request $request) => Limit::perMinute(3)->by($request->ip()));
+
+        // Renvoi de l'e-mail de vérification : 1 / minute / utilisateur —
+        // double le cooldown 60 s de l'interface (Phase 12).
+        RateLimiter::for('verification', function (Request $request) {
+            return Limit::perMinute(1)->by($request->user()?->getAuthIdentifier() ?: $request->ip());
+        });
 
         RateLimiter::for('passkeys', function (Request $request) {
             return Limit::perMinute(10)->by(
