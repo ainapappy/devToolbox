@@ -9,7 +9,12 @@
             (function() {
                 const appearance = '{{ $appearance ?? "system" }}';
 
-                if (appearance === 'system') {
+                // Sème localStorage avec la préférence connue du serveur
+                // (cookie) pour que initializeTheme reste cohérent au premier
+                // chargement d'un navigateur.
+                if (appearance !== 'system') {
+                    try { localStorage.setItem('appearance', appearance); } catch (e) {}
+                } else {
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
                     if (prefersDark) {

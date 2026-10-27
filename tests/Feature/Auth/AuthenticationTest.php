@@ -73,6 +73,14 @@ test('users can not authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
+test('authenticated users cannot access the login screen', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('login'))
+        ->assertRedirect(route('dashboard', absolute: false));
+});
+
 test('users can logout', function () {
     $user = User::factory()->create();
 

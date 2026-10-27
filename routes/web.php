@@ -23,9 +23,6 @@ Route::delete('auth/{provider}', [SocialAuthController::class, 'unlink'])
     ->middleware(['auth', 'verified'])
     ->name('social.unlink');
 
-// Démo des composants auth (temporaire — Phase 09, à retirer aux Phases 10→12).
-Route::inertia('dev/auth-demo', 'auth/demo')->name('auth.demo');
-
 // Front-office public : dashboard + navigation des outils.
 // Les outils exigent une adresse vérifiée pour les utilisateurs connectés
 // (les invités restent acceptés — décision documentée dans .knowledge/prompts/001.md).

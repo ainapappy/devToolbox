@@ -51,9 +51,28 @@ C'est aussi une démonstration d'ingénierie : un monolithe **modulaire** où ch
 
 ## Tests & qualité
 
-- **Suite complète** : `composer test` (Pint + PHPStan/Larastan niveau 7 + Pest) — 85+ tests couvrant le parcours nominal et les cas d'erreur de chaque outil.
+- **Suite complète** : `composer test` (Pint + PHPStan/Larastan niveau 7 + Pest) — 100+ tests couvrant le parcours nominal et les cas d'erreur de chaque outil et de chaque flux auth.
 - **Parcours vérifiés** : lecture unique destructrice (Secure Paste), service du cache (Mock API, redirections, placeholders), tracking asynchrone (job `TrackClick`), purge planifiée (`pastes:prune`, scheduler horaire), neutralisation XSS (Markdown serveur + client, échappement SVG), réponses `304 Not Modified`.
 - **Garde-fous en développement** : `Model::preventLazyLoading()` pour détecter les N+1 immédiatement, commandes destructives interdites en production, rate limiting sur tous les endpoints publics d'écriture.
+
+## Authentification
+
+Auth complète sur Fortify, intégrée aux maquettes de [`.knowledge/design/`](./.knowledge/design/) :
+
+- **Connexion & inscription** — throttling natif Fortify (5 tentatives/min), case « Se souvenir de moi », jauge de force du mot de passe alignée front ↔ serveur (`Password::defaults()` : 8 caractères, casse mixte, chiffre, symbole).
+- **Mot de passe oublié** — réponse neutre anti-énumération, rate limit dédié (3/min/IP), e-mail markdown DevToolbox avec expiration affichée, invalidation des autres sessions après reset.
+- **Vérification e-mail** — outils bloqués pour les comptes connectés non vérifiés (les invités restent acceptés), cooldown « Renvoyer » doublé côté serveur (1/min/utilisateur), e-mail markdown signé.
+- **2FA (TOTP)** — activation dans _Réglages → Sécurité_ (confirmation de mot de passe requise), défi avec codes de récupération à usage unique et « appareil de confiance » (cookie 30 jours qui court-circuite le défi).
+- **Connexion sociale** — GitHub & Google via Socialite, fusion par e-mail **uniquement si l'adresse locale est vérifiée** (anti-takeover), annulation OAuth gérée proprement, gestion des liaisons dans le profil.
+
+### Captures (sombre / clair)
+
+| Connexion                                          | Inscription                                             |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| ![Connexion sombre](docs/captures/login-dark.png)  | ![Inscription sombre](docs/captures/register-dark.png)  |
+| ![Connexion claire](docs/captures/login-light.png) | ![Inscription claire](docs/captures/register-light.png) |
+
+![Mot de passe oublié sombre](docs/captures/forgot-password-dark.png)
 
 ## Design
 
