@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('social_accounts', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('provider');
-            $table->string('provider_id');
+            // Longueurs réduites : index unique composite < 1000 bytes (MariaDB mutualisé).
+            $table->string('provider', 32);
+            $table->string('provider_id', 128);
             $table->string('provider_email')->nullable();
             $table->timestamps();
 
