@@ -38,6 +38,12 @@ class SecurityController extends Controller
                     ->all()
                 : [],
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            // Connexions sociales liées au compte (Phase 13).
+            'socialAccounts' => $request->user()
+                ->socialAccounts()
+                ->orderBy('provider')
+                ->get(['provider', 'provider_email'])
+                ->all(),
         ];
 
         if (Features::canManageTwoFactorAuthentication()) {

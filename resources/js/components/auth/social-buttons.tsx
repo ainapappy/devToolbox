@@ -1,29 +1,36 @@
-import type { ComponentProps } from 'react';
-import { cn } from '@/lib/utils';
+import { redirect } from '@/routes/social';
+import { Spinner } from '@/components/ui/spinner';
+import { useState } from 'react';
+
+type Provider = 'github' | 'google';
 
 /**
  * Bouton social avec logo officiel (maquette : .btn-social).
- * Désactivé jusqu'à la Phase 13 (connexion sociale) — tooltip « Bientôt disponible ».
+ * Connexion sociale active (Phase 13) — état loading pendant la redirection.
  */
 export function SocialButton({
-    className,
-    children,
-    ...props
-}: ComponentProps<'button'>) {
+    provider,
+    label,
+    loading,
+    onLoading,
+}: {
+    provider: Provider;
+    label: string;
+    loading: Provider | null;
+    onLoading: (provider: Provider) => void;
+}) {
+    const Logo = provider === 'github' ? GithubIcon : GoogleIcon;
+
     return (
-        <button
-            type="button"
-            disabled
-            title="Bientôt disponible"
-            aria-disabled
-            className={cn(
-                'inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-border bg-background text-sm font-semibold text-foreground opacity-60',
-                className,
-            )}
-            {...props}
+        <a
+            href={redirect(provider).url}
+            onClick={() => onLoading(provider)}
+            aria-busy={loading === provider}
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background text-sm font-semibold text-foreground transition-transform hover:-translate-y-0.5 hover:border-accent-1/40"
         >
-            {children}
-        </button>
+            {loading === provider ? <Spinner className="size-4" /> : <Logo />}
+            {label}
+        </a>
     );
 }
 
@@ -66,16 +73,22 @@ export function GoogleIcon() {
 
 /** Rangée des deux boutons sociaux (maquette : .social-row). */
 export function SocialRow({ className }: { className?: string }) {
+    const [loading, setLoading] = useState<Provider | null>(null);
+
     return (
-        <div className={cn('grid grid-cols-2 gap-3', className)}>
-            <SocialButton>
-                <GithubIcon />
-                GitHub
-            </SocialButton>
-            <SocialButton>
-                <GoogleIcon />
-                Google
-            </SocialButton>
+        <div className={className ?? 'grid grid-cols-2 gap-3'}>
+            <SocialButton
+                provider="github"
+                label="GitHub"
+                loading={loading}
+                onLoading={setLoading}
+            />
+            <SocialButton
+                provider="google"
+                label="Google"
+                loading={loading}
+                onLoading={setLoading}
+            />
         </div>
     );
 }

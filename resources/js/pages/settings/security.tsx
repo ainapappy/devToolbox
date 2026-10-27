@@ -11,10 +11,14 @@ import type { Props as ManagePasskeysProps } from '@/components/manage-passkeys'
 import ManagePasskeys from '@/components/manage-passkeys';
 import type { Props as ManageTwoFactorProps } from '@/components/manage-two-factor';
 import ManageTwoFactor from '@/components/manage-two-factor';
+import { SocialAccounts } from '@/components/settings/social-accounts';
+import type { SocialAccountSummary } from '@/types';
 
 // oxfmt-ignore
 type Props = {
     passwordRules: string;
+    socialAccounts?: SocialAccountSummary[];
+    status?: string;
 } & ManagePasskeysProps &
     ManageTwoFactorProps;
 
@@ -128,6 +132,11 @@ export default function Security(props: Props) {
                 canManageTwoFactor={props.canManageTwoFactor}
                 requiresConfirmation={props.requiresConfirmation}
                 twoFactorEnabled={props.twoFactorEnabled}
+            />
+
+            <SocialAccounts
+                socialAccounts={props.socialAccounts ?? []}
+                status={props.status}
             />
 
             <ManagePasskeys

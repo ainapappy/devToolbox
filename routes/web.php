@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Tools\MarkdownController;
 use App\Http\Controllers\Tools\MockApiController;
@@ -7,6 +8,20 @@ use App\Http\Controllers\Tools\PasteController;
 use App\Http\Controllers\Tools\PlaceholderController;
 use App\Http\Controllers\Tools\UrlShortenerController;
 use Illuminate\Support\Facades\Route;
+
+// Connexion sociale GitHub & Google (Phase 13) — whitelist stricte dans le
+// contrôleur ; callbacks throttlés par IP.
+Route::get('auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+    ->where('provider', 'github|google')
+    ->name('social.redirect');
+Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+    ->where('provider', 'github|google')
+    ->middleware('throttle:10,1')
+    ->name('social.callback');
+Route::delete('auth/{provider}', [SocialAuthController::class, 'unlink'])
+    ->where('provider', 'github|google')
+    ->middleware(['auth', 'verified'])
+    ->name('social.unlink');
 
 // Démo des composants auth (temporaire — Phase 09, à retirer aux Phases 10→12).
 Route::inertia('dev/auth-demo', 'auth/demo')->name('auth.demo');
