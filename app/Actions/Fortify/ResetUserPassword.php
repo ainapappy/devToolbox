@@ -4,6 +4,8 @@ namespace App\Actions\Fortify;
 
 use App\Concerns\PasswordValidationRules;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\ResetsUserPasswords;
 
@@ -23,7 +25,11 @@ class ResetUserPassword implements ResetsUserPasswords
         ])->validate();
 
         $user->forceFill([
-            'password' => $input['password'],
+            'password' => Hash::make($input['password']),
         ])->save();
+
+        // Sécurité : invalide toutes les sessions existantes de l'utilisateur,
+        // y compris celles ouvertes sur d'autres appareils (Phase 11).
+        DB::table('sessions')->where('user_id', $user->getKey())->delete();
     }
 }

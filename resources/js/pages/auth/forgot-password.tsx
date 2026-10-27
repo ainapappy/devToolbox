@@ -1,69 +1,103 @@
-// Components
-import { Form, Head } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
-import InputError from '@/components/input-error';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Form, Head, Link } from '@inertiajs/react';
+import { KeyRound, Mail } from 'lucide-react';
+import { Alert } from '@/components/auth/alert';
+import { AuthCard, AuthHeader } from '@/components/auth/auth-card';
+import { InputGroup } from '@/components/auth/input-group';
+import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { email } from '@/routes/password';
 
-export default function ForgotPassword({ status }: { status?: string }) {
+type Props = {
+    status?: string;
+};
+
+export default function ForgotPassword({ status }: Props) {
     return (
         <>
-            <Head title="Forgot password" />
+            <Head title="Mot de passe oublié" />
 
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
+            <AuthCard>
+                <AuthHeader
+                    icon={KeyRound}
+                    title="Mot de passe oublié"
+                    subtitle="Entrez votre e-mail pour recevoir un lien de réinitialisation."
+                />
 
-            <div className="space-y-6">
-                <Form {...email.form()}>
-                    {({ processing, errors }) => (
-                        <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    autoComplete="off"
-                                    autoFocus
-                                    placeholder="email@example.com"
-                                />
+                {status ? (
+                    <>
+                        {/* Réponse volontairement neutre (anti-énumération) :
+                            identique que le compte existe ou non. */}
+                        <Alert variant="success">{status}</Alert>
+                        <Link
+                            href={login()}
+                            data-test="back-to-login"
+                            className="mt-4 inline-flex items-center gap-1.5 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                            ← Retour à la connexion
+                        </Link>
+                    </>
+                ) : (
+                    <Form {...email.form()} className="grid gap-4">
+                        {({ processing, errors }) => (
+                            <>
+                                {errors.email && (
+                                    <Alert variant="error">
+                                        {errors.email}
+                                    </Alert>
+                                )}
 
-                                <InputError message={errors.email} />
-                            </div>
+                                <Alert variant="info">
+                                    Nous vous enverrons un lien de
+                                    réinitialisation à cette adresse, qu'un
+                                    compte existe ou non.
+                                </Alert>
 
-                            <div className="my-6 flex items-center justify-start">
-                                <Button
-                                    className="w-full"
+                                <div className="grid gap-1.5">
+                                    <label
+                                        htmlFor="email"
+                                        className="text-[0.8rem] font-semibold"
+                                    >
+                                        Adresse e-mail
+                                    </label>
+                                    <InputGroup
+                                        icon={Mail}
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        required
+                                        autoFocus
+                                        autoComplete="email"
+                                        placeholder="vous@exemple.com"
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
                                     disabled={processing}
                                     data-test="email-password-reset-link-button"
+                                    className="btn-gradient h-11 w-full rounded-xl"
                                 >
-                                    {processing && (
-                                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                                    {processing ? (
+                                        <>
+                                            <Spinner className="size-4" />
+                                            Envoi…
+                                        </>
+                                    ) : (
+                                        'Envoyer le lien de réinitialisation'
                                     )}
-                                    Email password reset link
-                                </Button>
-                            </div>
-                        </>
-                    )}
-                </Form>
+                                </button>
 
-                <div className="space-x-1 text-center text-sm text-muted-foreground">
-                    <span>Or, return to</span>
-                    <TextLink href={login()}>log in</TextLink>
-                </div>
-            </div>
+                                <Link
+                                    href={login()}
+                                    className="mt-1 inline-flex items-center justify-center gap-1.5 text-[0.8rem] text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    ← Retour à la connexion
+                                </Link>
+                            </>
+                        )}
+                    </Form>
+                )}
+            </AuthCard>
         </>
     );
 }
-
-ForgotPassword.layout = {
-    title: 'Forgot password',
-    description: 'Enter your email to receive a password reset link',
-};

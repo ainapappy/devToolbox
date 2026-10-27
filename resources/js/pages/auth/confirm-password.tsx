@@ -1,8 +1,8 @@
 import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { ShieldCheck } from 'lucide-react';
+import { Alert } from '@/components/auth/alert';
+import { AuthCard, AuthHeader } from '@/components/auth/auth-card';
+import { PasswordInput } from '@/components/auth/password-input';
 import { Spinner } from '@/components/ui/spinner';
 import { store } from '@/routes/password/confirm';
 import {
@@ -11,56 +11,80 @@ import {
 } from '@/actions/Laravel/Passkeys/Http/Controllers/PasskeyConfirmationController';
 import PasskeyVerify from '@/components/passkey-verify';
 
+/**
+ * Confirmation de mot de passe pour les zones sensibles
+ * (maquette : confirm-password.html). Le timeout est piloté par
+ * auth.password_confirmation_timeout.
+ */
 export default function ConfirmPassword() {
     return (
         <>
-            <Head title="Confirm password" />
+            <Head title="Confirmer votre mot de passe" />
 
-            <PasskeyVerify
-                routes={{
-                    options: confirmOptions(),
-                    submit: confirmStore(),
-                }}
-                label="Confirm with passkey"
-                loadingLabel="Confirming..."
-                separator="Or confirm with password"
-            />
+            <AuthCard>
+                <AuthHeader
+                    icon={ShieldCheck}
+                    title="Zone sensible"
+                    subtitle="Confirmez votre mot de passe pour continuer."
+                />
 
-            <Form {...store.form()} resetOnSuccess={['password']}>
-                {({ processing, errors }) => (
-                    <div className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="password">Password</Label>
-                            <PasswordInput
-                                id="password"
-                                name="password"
-                                placeholder="Password"
-                                autoComplete="current-password"
-                                autoFocus
-                            />
+                <PasskeyVerify
+                    routes={{
+                        options: confirmOptions(),
+                        submit: confirmStore(),
+                    }}
+                    label="Confirmer avec une passkey"
+                    loadingLabel="Confirmation…"
+                    separator="ou"
+                />
 
-                            <InputError message={errors.password} />
-                        </div>
+                <Form
+                    {...store.form()}
+                    resetOnSuccess={['password']}
+                    className="grid gap-4"
+                >
+                    {({ processing, errors }) => (
+                        <>
+                            {errors.password && (
+                                <Alert variant="error">{errors.password}</Alert>
+                            )}
 
-                        <div className="flex items-center">
-                            <Button
-                                className="w-full"
+                            <div className="grid gap-1.5">
+                                <label
+                                    htmlFor="password"
+                                    className="text-[0.8rem] font-semibold"
+                                >
+                                    Mot de passe
+                                </label>
+                                <PasswordInput
+                                    id="password"
+                                    name="password"
+                                    required
+                                    autoFocus
+                                    autoComplete="current-password"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
                                 disabled={processing}
                                 data-test="confirm-password-button"
+                                className="btn-gradient h-11 w-full rounded-xl"
                             >
-                                {processing && <Spinner />}
-                                Confirm password
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </Form>
+                                {processing ? (
+                                    <>
+                                        <Spinner className="size-4" />
+                                        Vérification…
+                                    </>
+                                ) : (
+                                    'Confirmer'
+                                )}
+                            </button>
+                        </>
+                    )}
+                </Form>
+            </AuthCard>
         </>
     );
 }
-
-ConfirmPassword.layout = {
-    title: 'Confirm password',
-    description:
-        'This is a secure area of the application. Please confirm your password before continuing.',
-};

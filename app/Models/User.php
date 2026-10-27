@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Notifications\Auth\ResetPassword;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -33,6 +34,15 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, PasskeyAuthenticatable, TwoFactorAuthenticatable;
+
+    /**
+     * Envoie la notification de réinitialisation personnalisée DevToolbox
+     * (lien signé, expiration affichée — Phase 11).
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPassword($token));
+    }
 
     /**
      * Get the attributes that should be cast.
