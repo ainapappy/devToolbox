@@ -156,7 +156,7 @@ export default function Index({ created }: MockCreateProps) {
                             ) : (
                                 <Copy className="size-4" />
                             )}
-                            {copied === endpoint ? '✓ Copié !' : 'Copier'}
+                            {copied === endpoint ? 'Copié !' : 'Copier'}
                         </button>
                     </div>
                     <p className="mt-4 text-sm text-muted-foreground">

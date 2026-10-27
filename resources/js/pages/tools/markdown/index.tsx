@@ -135,7 +135,7 @@ export default function Index({ created }: MarkdownIndexProps) {
                         onClick={() => copy(shareUrl)}
                         className="btn-ghost"
                     >
-                        {copied === shareUrl ? '✓ Copié !' : 'Copier le lien'}
+                        {copied === shareUrl ? 'Copié !' : 'Copier le lien'}
                     </button>
                 </section>
             )}

@@ -82,7 +82,7 @@ export default function Index({ created, links }: ShortenerIndexProps) {
                             ) : (
                                 <Copy className="size-4" />
                             )}
-                            {copied === shortUrl ? '✓ Copié !' : 'Copier'}
+                            {copied === shortUrl ? 'Copié !' : 'Copier'}
                         </button>
                     </div>
                 )}
