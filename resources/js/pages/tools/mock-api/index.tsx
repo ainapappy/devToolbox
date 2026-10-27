@@ -20,13 +20,22 @@ const statusCodes = [200, 201, 202, 204, 301, 400, 403, 404, 418, 500] as const;
  * Coloration syntaxique JSON minimale (maquette : .j-key/.j-str/.j-num/.j-bool).
  */
 function highlightJson(source: string): string {
-    return source
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/"(\\.|[^"\\])*"(?=\s*:)/g, '<span class="j-key">$&</span>')
-        .replace(/"(\\.|[^"\\])*"(?!\s*:)/g, '<span class="j-str">$&</span>')
-        .replace(/\b(true|false|null)\b/g, '<span class="j-bool">$&</span>')
-        .replace(/-?\b\d+(\.\d+)?\b/g, '<span class="j-num">$&</span>');
+    const escaped = source.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+    // Un seul passage : les replace chaînés re-traitaient le balisage injecté.
+    return escaped.replace(
+        /("(?:\\.|[^"\\])*")(?=\s*:)|("(?:\\.|[^"\\])*")|\b(true|false|null)\b|(-?\b\d+(?:\.\d+)?\b)/g,
+        (match, key, str, bool) => {
+            const cls = key
+                ? 'j-key'
+                : str
+                  ? 'j-str'
+                  : bool
+                    ? 'j-bool'
+                    : 'j-num';
+            return `<span class="${cls}">${match}</span>`;
+        },
+    );
 }
 
 type MockForm = {

@@ -479,3 +479,20 @@
     border: 1px solid var(--color-border);
     padding: 0.35rem 0.6rem;
 }
+
+/* Coloration syntaxique JSON (maquette : .j-key/.j-str/.j-num/.j-bool) */
+.j-key {
+    color: #3987e5;
+}
+
+.j-str {
+    color: #199e70;
+}
+
+.j-num {
+    color: #d95926;
+}
+
+.j-bool {
+    color: #9085e9;
+}
