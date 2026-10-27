@@ -118,6 +118,7 @@ export interface MarkdownIndexProps {
 /** Métadonnées d'un fichier nouvellement envoyé (flash `uploaded`). */
 export interface FileUploadCreated {
     uuid: string;
+    batch_uuid: string;
     original_name: string;
     mime_type: string;
     size: number;

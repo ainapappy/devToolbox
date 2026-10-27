@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int|null $user_id
  * @property string $uuid
+ * @property string $batch_uuid
  * @property string $original_name
  * @property string $path
  * @property string $mime_type
@@ -35,6 +36,7 @@ class FileUpload extends Model
     protected $fillable = [
         'user_id',
         'uuid',
+        'batch_uuid',
         'original_name',
         'path',
         'mime_type',

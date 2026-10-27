@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Tools;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tools\StoreFileUploadRequest;
 use App\Models\FileUpload;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -16,6 +18,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use ZipArchive;
 
 class FileUploadController extends Controller
 {
@@ -46,6 +49,7 @@ class FileUploadController extends Controller
     public function store(StoreFileUploadRequest $request): SymfonyResponse
     {
         $disk = (string) config('devtoolbox.uploads.disk');
+        $batchUuid = (string) Str::uuid();
 
         $uploaded = [];
 
@@ -54,6 +58,7 @@ class FileUploadController extends Controller
             $upload = FileUpload::create([
                 'user_id' => $request->user()?->id,
                 'uuid' => (string) Str::uuid(),
+                'batch_uuid' => $batchUuid,
                 'original_name' => $file->getClientOriginalName(),
                 'path' => $file->store('uploads', $disk),
                 'mime_type' => $file->getMimeType(),
@@ -81,15 +86,14 @@ class FileUploadController extends Controller
      * Téléchargement public par UUID, façon Secure Paste : mot de passe
      * optionnel, expiration, quota de téléchargements. Le compteur est
      * incrémenté dans une transaction verrouillée (lockForUpdate) pour
-     * qu'un lien à quota de 1 ne puisse pas servir deux téléchargements
-     * simultanés.
+     * qu'un lien à quota de 1 ne puisse pas servir deux requêtes.
      */
     public function download(Request $request, string $uuid): SymfonyResponse
     {
-        [$status, $upload, $wrongPassword] = $this->resolveSharedUpload($request, $uuid);
+        [$status, $rows, $wrongPassword] = $this->resolveSharedBatch($request, $uuid);
 
         if ($status === 'unavailable') {
-            // UUID inconnu, lien expiré ou épuisé : même information que
+            // Batch inconnu, lien expiré ou épuisé : même information que
             // pour les pastes, sans révéler pourquoi.
             return Inertia::render('tools/upload/expired')->toResponse($request);
         }
@@ -101,40 +105,81 @@ class FileUploadController extends Controller
             ])->toResponse($request);
         }
 
-        return Storage::disk((string) config('devtoolbox.uploads.disk'))
-            ->download($upload->path, $upload->original_name);
+        $disk = Storage::disk((string) config('devtoolbox.uploads.disk'));
+
+        if ($rows->count() === 1) {
+            return $disk->download($rows[0]->path, $rows[0]->original_name);
+        }
+
+        return response()->download(
+            $this->zipBatch($rows, $disk),
+            'file-drop-'.substr($uuid, 0, 8).'.zip',
+        )->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Assemble l'envoi dans une archive zip temporaire (supprimée après
+     * l'envoi), en conservant les noms originaux.
+     *
+     * @param  iterable<int, FileUpload>  $rows
+     */
+    private function zipBatch(iterable $rows, Filesystem $disk): string
+    {
+        $zipPath = (string) tempnam(sys_get_temp_dir(), 'filedrop_');
+
+        $zip = new ZipArchive;
+
+        if ($zip->open($zipPath, ZipArchive::OVERWRITE) !== true) {
+            throw new \RuntimeException('Impossible de créer l\'archive zip de l\'envoi.');
+        }
+
+        try {
+            foreach ($rows as $row) {
+                $zip->addFile($disk->path($row->path), $row->original_name);
+            }
+        } finally {
+            $zip->close();
+        }
+
+        return $zipPath;
     }
 
     /**
      * Résout un lien public : statut « available », « locked » ou
      * « unavailable ». La transaction verrouillée garantit un compteur
-     * de téléchargements exact, même sous requêtes concurrentes.
+     * de téléchargements exact, même sous requêtes concurrentes. Le
+     * paramètre peut être un batch (téléchargement groupé) ou l'uuid d'un
+     * fichier isolé (compatibilité avec les liens créés avant le batch).
      *
-     * @return array{string, FileUpload|null, bool}
+     * @return array{string, Collection<int, FileUpload>, bool}
      */
-    private function resolveSharedUpload(Request $request, string $uuid): array
+    private function resolveSharedBatch(Request $request, string $uuid): array
     {
         return DB::transaction(function () use ($request, $uuid): array {
-            $upload = FileUpload::query()
-                ->where('uuid', $uuid)
+            $rows = FileUpload::query()
+                ->where('batch_uuid', $uuid)
+                ->orWhere('uuid', $uuid)
+                ->orderBy('id')
                 ->lockForUpdate()
-                ->first();
+                ->get();
 
-            if ($upload === null || $upload->isExpired() || $upload->isExhausted()) {
-                return ['unavailable', null, false];
+            $first = $rows->first();
+
+            if ($first === null || $first->isExpired() || $first->isExhausted()) {
+                return ['unavailable', $rows, false];
             }
 
-            if ($upload->requiresPassword()) {
+            if ($first->requiresPassword()) {
                 $password = $request->input('password');
 
-                if (! is_string($password) || $password === '' || ! Hash::check($password, $upload->password_hash)) {
-                    return ['locked', $upload, is_string($password) && $password !== ''];
+                if (! is_string($password) || $password === '' || ! Hash::check($password, $first->password_hash)) {
+                    return ['locked', $rows, is_string($password) && $password !== ''];
                 }
             }
 
-            $upload->increment('downloads');
+            $rows->each->increment('downloads');
 
-            return ['available', $upload, false];
+            return ['available', $rows, false];
         });
     }
 
@@ -175,12 +220,13 @@ class FileUploadController extends Controller
     /**
      * Métadonnées sérialisables exposées au front (flash/JSON).
      *
-     * @return array{uuid: string, original_name: string, mime_type: string, size: int, max_downloads: int|null, expires_at: string|null}
+     * @return array{uuid: string, batch_uuid: string, original_name: string, mime_type: string, size: int, max_downloads: int|null, expires_at: string|null}
      */
     private static function metadata(FileUpload $upload): array
     {
         return [
             'uuid' => $upload->uuid,
+            'batch_uuid' => $upload->batch_uuid,
             'original_name' => $upload->original_name,
             'mime_type' => $upload->mime_type,
             'size' => $upload->size,

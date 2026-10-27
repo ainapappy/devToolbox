@@ -196,7 +196,7 @@ export default function Index({
 
     const shareUrl =
         uploaded && uploaded.length > 0
-            ? `${window.location.origin}${download.url({ uuid: uploaded[0].uuid })}`
+            ? `${window.location.origin}${download.url({ uuid: uploaded[0].batch_uuid })}`
             : null;
 
     return (

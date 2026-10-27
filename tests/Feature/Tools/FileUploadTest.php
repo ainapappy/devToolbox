@@ -8,6 +8,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use ZipArchive;
 
 beforeEach(function () {
     Storage::fake((string) config('devtoolbox.uploads.disk'));
@@ -261,6 +262,39 @@ test('guests can upload anonymously, destroy stays reserved to the owner', funct
         ->assertDownload($upload->original_name);
 
     expect(Storage::disk(uploadDisk())->get($upload->path))->toBe('depot invite');
+});
+
+test('a batch link downloads every file of the upload as one zip', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->postJson(route('tools.upload.store'), [
+        'files' => [
+            UploadedFile::fake()->createWithContent('a.md', 'contenu a'),
+            UploadedFile::fake()->createWithContent('b.csv', 'a,b'),
+            UploadedFile::fake()->createWithContent('c.json', '{"k":1}'),
+        ],
+    ])->assertCreated();
+
+    $batch = $response->json('files.0.batch_uuid');
+
+    expect($batch)->toBeString()
+        ->and(FileUpload::where('batch_uuid', $batch)->count())->toBe(3);
+
+    $download = $this->get(route('tools.upload.download', $batch))
+        ->assertOk()
+        ->assertDownload('file-drop-'.substr($batch, 0, 8).'.zip');
+
+    // BinaryFileResponse : le contenu se lit via getFile(), pas getContent().
+    $zipPath = $download->getFile()->getPathname();
+
+    $zip = new ZipArchive;
+    expect($zip->open($zipPath))->toBeTrue()
+        ->and($zip->numFiles)->toBe(3)
+        ->and((string) $zip->getNameIndex(0))->toBe('a.md')
+        ->and((string) $zip->getFromName('b.csv'))->toBe('a,b');
+    $zip->close();
+
+    expect(FileUpload::where('batch_uuid', $batch)->where('downloads', 1)->get())->toHaveCount(3);
 });
 
 test('the File Drop tool is registered after SVG Placeholder', function () {
