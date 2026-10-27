@@ -7,6 +7,13 @@ use App\Http\Controllers\Tools\MockApiController;
 use App\Http\Controllers\Tools\PasteController;
 use App\Http\Controllers\Tools\PlaceholderController;
 use App\Http\Controllers\Tools\UrlShortenerController;
+use App\Mails\NewLoginMail;
+use App\Mails\PasswordChangedMail;
+use App\Mails\ResetPasswordMail;
+use App\Mails\TwoFactorCodeMail;
+use App\Mails\VerifyEmailMail;
+use App\Mails\WelcomeMail;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 // Connexion sociale GitHub & Google (Phase 13) — whitelist stricte dans le
@@ -63,5 +70,65 @@ Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])
 
 // Redirection des liens courts (cache + tracking asynchrone).
 Route::get('s/{code}', [UrlShortenerController::class, 'redirect'])->name('urls.redirect');
+
+// Prévisualisation des emails transactionnels (dev uniquement — Phase 15).
+if (app()->isLocal()) {
+    Route::get('dev/mails', function () {
+        $types = [
+            'verify-email' => 'Vérification d\'adresse',
+            'welcome' => 'Bienvenue',
+            'reset-password' => 'Réinitialisation de mot de passe',
+            'two-factor-code' => 'Code 2FA',
+            'new-login' => 'Nouvelle connexion',
+            'password-changed' => 'Mot de passe modifié',
+        ];
+
+        $links = implode('', array_map(
+            fn ($type, $label) => '<li><a href="/dev/mails/'.$type.'">'.$label.'</a></li>',
+            array_keys($types),
+            $types,
+        ));
+
+        return response('<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Previews emails — DevToolbox</title></head><body style="font-family:sans-serif;max-width:600px;margin:40px auto;"><h1>Emails transactionnels — Auth</h1><ul style="font-size:18px;line-height:2">'.$links.'</ul></body></html>');
+    })->name('dev.mails.index');
+
+    Route::get('dev/mails/{type}', function (string $type) {
+        $mail = match ($type) {
+            'verify-email' => new VerifyEmailMail(
+                User::factory()->make(['name' => 'Alex', 'email' => 'alex@exemple.dev']),
+                'https://services.test/email/verify/1/fake-signed-token?expires='.now()->addMinutes(60)->getTimestamp(),
+            ),
+            'welcome' => new WelcomeMail(
+                User::factory()->make(['name' => 'Alex', 'email' => 'alex@exemple.dev']),
+                config('app.url'),
+            ),
+            'reset-password' => new ResetPasswordMail(
+                User::factory()->make(['name' => 'Alex', 'email' => 'alex@exemple.dev']),
+                'https://services.test/reset-password/fake-token?email=alex%40exemple.dev',
+            ),
+            'two-factor-code' => new TwoFactorCodeMail(
+                User::factory()->make(['name' => 'Alex', 'email' => 'alex@exemple.dev']),
+                '482913',
+            ),
+            'new-login' => new NewLoginMail(
+                User::factory()->make(['name' => 'Alex', 'email' => 'alex@exemple.dev']),
+                [
+                    'device' => 'Chrome sur Windows 11',
+                    'location' => 'Paris, France',
+                    'ip' => '92.184.x.x',
+                    'date' => now()->translatedFormat('d F Y \à H:i').' (UTC+'.now()->offsetHours.')',
+                ],
+                config('app.url'),
+            ),
+            'password-changed' => new PasswordChangedMail(
+                User::factory()->make(['name' => 'Alex', 'email' => 'alex@exemple.dev']),
+                now()->translatedFormat('d F Y \à H:i'),
+            ),
+            default => abort(404),
+        };
+
+        return response($mail->render());
+    })->where('type', '[a-z-]+')->name('dev.mails.show');
+}
 
 require __DIR__.'/settings.php';
