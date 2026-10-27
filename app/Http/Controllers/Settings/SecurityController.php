@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\PasswordUpdateRequest;
 use App\Http\Requests\Settings\TwoFactorAuthenticationRequest;
+use App\Mails\PasswordChangedMail;
+use App\Support\AuthMailThrottle;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,6 +41,12 @@ class SecurityController extends Controller
                     ->all()
                 : [],
             'passwordRules' => Password::defaults()->toPasswordRulesString(),
+            // Connexions sociales liées au compte (Phase 13).
+            'socialAccounts' => $request->user()
+                ->socialAccounts()
+                ->orderBy('provider')
+                ->get(['provider', 'provider_email'])
+                ->all(),
         ];
 
         if (Features::canManageTwoFactorAuthentication()) {
@@ -58,6 +67,15 @@ class SecurityController extends Controller
         $request->user()->update([
             'password' => $request->password,
         ]);
+
+        // Confirmation par email avec quota de sécurité (Phase 16).
+        AuthMailThrottle::attempt($request->user(), function () use ($request): void {
+            Mail::to($request->user()->email)->send(new PasswordChangedMail(
+                $request->user(),
+                now()->translatedFormat('d F Y \à H:i'),
+                route('login'),
+            ));
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Password updated.')]);
 

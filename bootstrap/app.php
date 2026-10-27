@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureVerifiedIfAuthenticated;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
@@ -16,6 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+
+        // Les invités restent acceptés sur les outils ; seuls les utilisateurs
+        // connectés non vérifiés sont bloqués (Phase 12).
+        $middleware->alias([
+            'verified-if-auth' => EnsureVerifiedIfAuthenticated::class,
+        ]);
 
         $middleware->web(append: [
             HandleAppearance::class,

@@ -1,11 +1,12 @@
-import { Form, Head } from '@inertiajs/react';
-import InputError from '@/components/input-error';
-import PasswordInput from '@/components/password-input';
-import TextLink from '@/components/text-link';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Form, Head, Link } from '@inertiajs/react';
+import { Lock, Mail } from 'lucide-react';
+import { Alert } from '@/components/auth/alert';
+import { AuthCard, AuthHeader } from '@/components/auth/auth-card';
+import { CheckboxField } from '@/components/auth/checkbox-field';
+import { Divider } from '@/components/auth/divider';
+import { InputGroup } from '@/components/auth/input-group';
+import { PasswordInput } from '@/components/auth/password-input';
+import { SocialRow } from '@/components/auth/social-buttons';
 import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
@@ -20,21 +21,45 @@ type Props = {
 export default function Login({ status, canResetPassword }: Props) {
     return (
         <>
-            <Head title="Log in" />
+            <Head title="Connexion" />
 
-            <PasskeyVerify />
+            <AuthCard>
+                <AuthHeader
+                    icon={Lock}
+                    title="Bon retour 👋"
+                    subtitle="Connectez-vous pour accéder à vos outils."
+                />
 
-            <Form
-                {...store.form()}
-                resetOnSuccess={['password']}
-                className="flex flex-col gap-6"
-            >
-                {({ processing, errors }) => (
-                    <>
-                        <div className="grid gap-6">
-                            <div className="grid gap-2">
-                                <Label htmlFor="email">Email address</Label>
-                                <Input
+                {status && (
+                    <Alert variant="success" className="mb-4">
+                        {status}
+                    </Alert>
+                )}
+
+                <PasskeyVerify
+                    label="Se connecter avec une passkey"
+                    separator="ou"
+                />
+
+                <Form
+                    {...store.form()}
+                    resetOnSuccess={['password']}
+                    className="grid gap-4"
+                >
+                    {({ processing, errors }) => (
+                        <>
+                            {errors.email && (
+                                <Alert variant="error">{errors.email}</Alert>
+                            )}
+                            <div className="grid gap-1.5">
+                                <label
+                                    htmlFor="email"
+                                    className="text-[0.8rem] font-semibold"
+                                >
+                                    Adresse e-mail
+                                </label>
+                                <InputGroup
+                                    icon={Mail}
                                     id="email"
                                     type="email"
                                     name="email"
@@ -42,22 +67,26 @@ export default function Login({ status, canResetPassword }: Props) {
                                     autoFocus
                                     tabIndex={1}
                                     autoComplete="email"
-                                    placeholder="email@example.com"
+                                    placeholder="vous@exemple.com"
                                 />
-                                <InputError message={errors.email} />
                             </div>
 
-                            <div className="grid gap-2">
-                                <div className="flex items-center">
-                                    <Label htmlFor="password">Password</Label>
+                            <div className="grid gap-1.5">
+                                <div className="flex items-center justify-between gap-3">
+                                    <label
+                                        htmlFor="password"
+                                        className="text-[0.8rem] font-semibold"
+                                    >
+                                        Mot de passe
+                                    </label>
                                     {canResetPassword && (
-                                        <TextLink
+                                        <Link
                                             href={request()}
-                                            className="ml-auto text-sm"
                                             tabIndex={5}
+                                            className="text-[0.82rem] font-semibold text-accent-1 hover:underline"
                                         >
-                                            Forgot your password?
-                                        </TextLink>
+                                            Mot de passe oublié&nbsp;?
+                                        </Link>
                                     )}
                                 </div>
                                 <PasswordInput
@@ -66,52 +95,51 @@ export default function Login({ status, canResetPassword }: Props) {
                                     required
                                     tabIndex={2}
                                     autoComplete="current-password"
-                                    placeholder="Password"
+                                    placeholder="••••••••"
                                 />
-                                <InputError message={errors.password} />
                             </div>
 
-                            <div className="flex items-center space-x-3">
-                                <Checkbox
-                                    id="remember"
-                                    name="remember"
-                                    tabIndex={3}
-                                />
-                                <Label htmlFor="remember">Remember me</Label>
-                            </div>
+                            <CheckboxField
+                                id="remember"
+                                name="remember"
+                                tabIndex={3}
+                                label="Se souvenir de moi pendant 30 jours"
+                            />
 
-                            <Button
+                            <button
                                 type="submit"
-                                className="mt-4 w-full"
                                 tabIndex={4}
                                 disabled={processing}
                                 data-test="login-button"
+                                className="btn-gradient mt-1 h-11 w-full rounded-xl"
                             >
-                                {processing && <Spinner />}
-                                Log in
-                            </Button>
-                        </div>
+                                {processing ? (
+                                    <>
+                                        <Spinner className="size-4" />
+                                        Connexion…
+                                    </>
+                                ) : (
+                                    'Se connecter'
+                                )}
+                            </button>
 
-                        <div className="text-center text-sm text-muted-foreground">
-                            Don't have an account?{' '}
-                            <TextLink href={register()} tabIndex={5}>
-                                Sign up
-                            </TextLink>
-                        </div>
-                    </>
-                )}
-            </Form>
+                            <Divider />
+                            <SocialRow />
+                        </>
+                    )}
+                </Form>
 
-            {status && (
-                <div className="mb-4 text-center text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
+                <p className="mt-5 text-center text-sm text-muted-foreground">
+                    Pas encore de compte&nbsp;?{' '}
+                    <Link
+                        href={register()}
+                        tabIndex={5}
+                        className="font-semibold text-accent-1 hover:underline"
+                    >
+                        Créer un compte
+                    </Link>
+                </p>
+            </AuthCard>
         </>
     );
 }
-
-Login.layout = {
-    title: 'Log in to your account',
-    description: 'Enter your email and password below to log in',
-};

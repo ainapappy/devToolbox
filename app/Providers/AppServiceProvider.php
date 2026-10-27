@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -33,18 +34,27 @@ class AppServiceProvider extends ServiceProvider
     {
         Date::use(CarbonImmutable::class);
 
+        // Révèle les N+1 dès le développement (exception en test/dev).
+        Model::preventLazyLoading(! app()->isProduction());
+
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+        // Règles alignées sur la jauge de force frontend (Phase 10) :
+        // min. 8 caractères, majuscule + minuscule, chiffre, symbole.
+        Password::defaults(fn (): Password => app()->isProduction()
+            ? Password::min(8)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
                 ->symbols()
                 ->uncompromised()
-            : null,
+            : Password::min(8)
+                ->mixedCase()
+                ->letters()
+                ->numbers()
+                ->symbols(),
         );
     }
 }

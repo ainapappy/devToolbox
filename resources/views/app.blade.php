@@ -9,7 +9,12 @@
             (function() {
                 const appearance = '{{ $appearance ?? "system" }}';
 
-                if (appearance === 'system') {
+                // Sème localStorage avec la préférence connue du serveur
+                // (cookie) pour que initializeTheme reste cohérent au premier
+                // chargement d'un navigateur.
+                if (appearance !== 'system') {
+                    try { localStorage.setItem('appearance', appearance); } catch (e) {}
+                } else {
                     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
                     if (prefersDark) {
@@ -22,11 +27,11 @@
         {{-- Inline style to set the HTML background color based on our theme in app.css --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: #f9f9f7;
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: #0d0d0d;
             }
         </style>
 
