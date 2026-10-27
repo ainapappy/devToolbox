@@ -51,6 +51,10 @@ class PasteController extends Controller
     {
         $paste = Paste::query()->where('hash', $hash)->firstOrFail();
 
+        if ($paste->isExpired()) {
+            return Inertia::render('tools/paste/expired');
+        }
+
         return Inertia::render('tools/paste/show', [
             'hash' => $paste->hash,
             'burn_after_read' => $paste->burn_after_read,
@@ -65,8 +69,10 @@ class PasteController extends Controller
         $paste = Paste::query()->where('hash', $hash)->firstOrFail();
 
         if ($paste->isExpired()) {
-            $paste->delete();
-            abort(404);
+            // Lien périmé : page dédiée plutôt qu'une erreur. La ligne reste
+            // en base jusqu'au prune planifié (pastes:prune) pour que les
+            // visites suivantes voient la même information.
+            return Inertia::render('tools/paste/expired')->toResponse($request);
         }
 
         $content = $paste->content;

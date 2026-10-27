@@ -57,10 +57,27 @@ test('a burn paste is readable exactly once', function () {
     $this->post(route('pastes.reveal', $paste->hash))->assertNotFound();
 });
 
-test('an expired paste returns 404', function () {
+test('an expired paste shows the expired page', function () {
     $paste = Paste::factory()->expired()->create();
 
-    $this->post(route('pastes.reveal', $paste->hash))->assertNotFound();
+    $this->get(route('pastes.show', $paste->hash))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('tools/paste/expired'));
+
+    $this->post(route('pastes.reveal', $paste->hash))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->component('tools/paste/expired'));
+
+    // La ligne reste en base jusqu'au prune : les visites suivantes voient
+    // la même page « expiré » plutôt qu'un 404.
+    expect(Paste::query()->whereKey($paste->getKey())->exists())->toBeTrue();
+});
+
+test('a GET on the reveal URL redirects to the warning page', function () {
+    $paste = Paste::factory()->create();
+
+    $this->get(route('pastes.reveal', $paste->hash))
+        ->assertRedirect(route('pastes.show', $paste->hash));
 });
 
 test('an unknown hash returns 404', function () {

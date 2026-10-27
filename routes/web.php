@@ -66,6 +66,10 @@ Route::get('api/mock/{slug}', [MockApiController::class, 'serve'])->name('mocks.
 
 // Lecture publique d'un paste (avertissement puis révélation).
 Route::get('p/{hash}', [PasteController::class, 'show'])->name('pastes.show');
+// Repli GET sur /reveal (refresh, partage d'URL) : retour à l'avertissement
+// au lieu d'une MethodNotAllowedHttpException.
+Route::get('p/{hash}/reveal', fn (string $hash) => redirect()->route('pastes.show', $hash))
+    ->name('pastes.reveal.fallback');
 Route::post('p/{hash}/reveal', [PasteController::class, 'reveal'])
     ->middleware('throttle:30,1')->name('pastes.reveal');
 
