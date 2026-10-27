@@ -98,7 +98,7 @@ export default function Index({ created }: MockCreateProps) {
                 <div className="relative font-mono text-sm">
                     <pre
                         aria-hidden
-                        className="pointer-events-none min-h-55 overflow-x-auto rounded-xl border border-border bg-background p-4 leading-relaxed whitespace-pre-wrap"
+                        className="code-well pointer-events-none min-h-55 overflow-x-auto rounded-xl border border-border p-4 leading-relaxed whitespace-pre-wrap"
                         dangerouslySetInnerHTML={{ __html: highlighted }}
                     />
                     <textarea
@@ -175,7 +175,7 @@ export default function Index({ created }: MockCreateProps) {
                         </code>{' '}
                         · status <strong>{created.status_code}</strong>
                     </p>
-                    <pre className="mt-3 overflow-x-auto rounded-xl border border-border bg-background p-3 font-mono text-xs text-muted-foreground">
+                    <pre className="code-well mt-3 overflow-x-auto rounded-xl border border-border p-3 font-mono text-xs text-muted-foreground">
                         {`curl -i ${endpoint}`}
                     </pre>
                     <button
