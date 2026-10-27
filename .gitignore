@@ -44,3 +44,7 @@ yarn-error.log
 /opencode.json
 /opencode.jsonc
 .knowledge
+.env.prod*
+.env.production*
+.env.local*
+.env.dev*

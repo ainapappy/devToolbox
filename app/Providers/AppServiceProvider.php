@@ -6,6 +6,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -33,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDefaults(): void
     {
         Date::use(CarbonImmutable::class);
+
+        // Hotfix MariaDB : index trop longs (max 1000 bytes) avec utf8mb4
+        // sur l'hébergement — 191 × 4 = 764 bytes < 1000.
+        Schema::defaultStringLength(191);
 
         // Révèle les N+1 dès le développement (exception en test/dev).
         Model::preventLazyLoading(! app()->isProduction());
