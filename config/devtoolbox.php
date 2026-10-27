@@ -6,7 +6,7 @@
 // chaîne (booléens .env).
 $allowedMimes = (string) env(
     'DEVTOOLBOX_UPLOADS_ALLOWED_MIMES',
-    'zip,rar,gz,pdf,png,jpg,md,csv,json',
+    'zip,rar,gz,pdf,png,jpg,md,csv,json,txt',
 );
 
 return [
@@ -30,10 +30,10 @@ return [
         // Nombre maximal de fichiers par upload.
         'max_files' => (int) env('DEVTOOLBOX_UPLOADS_MAX_FILES', 5),
 
-        // Extensions autorisées (pour la règle de validation `mimes`).
-        // Mimes correspondants : application/zip, application/vnd.rar,
-        // application/gzip, application/pdf, image/png, image/jpeg,
-        // text/markdown, text/csv, application/json.
+        // Extensions autorisées (liste blanche de validation, alignée sur
+        // la validation client). Mimes attendus : application/zip,
+        // application/vnd.rar, application/gzip, application/pdf, image/png,
+        // image/jpeg, text/markdown, text/csv, application/json, text/plain.
         'allowed_mimes' => explode(',', $allowedMimes),
 
         // Disque de stockage (les fichiers sont rangés sous uploads/).

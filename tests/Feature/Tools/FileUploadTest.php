@@ -127,7 +127,7 @@ test('more files than max_files are rejected', function () {
 test('a mime type outside allowed_mimes is rejected', function () {
     // Liste imposée par le cahier des charges (défaut de la config).
     config()->set('devtoolbox.uploads.allowed_mimes', [
-        'zip', 'rar', 'gz', 'pdf', 'png', 'jpg', 'md', 'csv', 'json',
+        'zip', 'rar', 'gz', 'pdf', 'png', 'jpg', 'md', 'csv', 'json', 'txt',
     ]);
 
     $user = User::factory()->create();
