@@ -132,8 +132,20 @@ export default function AuthSplitLayout({ children }: PropsWithChildren) {
                     </div>
                 ))}
 
-                <p className="font-mono text-xs text-muted-foreground/70">
-                    Laravel · Inertia · React · TypeScript · Tailwind
+                <p className="flex items-center gap-2 font-mono text-xs text-muted-foreground/70">
+                    <span
+                        aria-hidden
+                        className="size-2 shrink-0 animate-led rounded-full"
+                    />
+                    Développé par{' '}
+                    <a
+                        href="https://ainatrix.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline-offset-2 transition-colors hover:text-foreground hover:underline"
+                    >
+                        ainatrix.com
+                    </a>
                 </p>
             </aside>
 

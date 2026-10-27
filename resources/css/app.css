@@ -81,6 +81,7 @@
     --animate-float: float 5s ease-in-out infinite;
     --animate-grow: grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
     --animate-blink: blink 1s steps(1) infinite;
+    --animate-led: led 1.2s steps(1) infinite;
 
     @keyframes drift {
         from {
@@ -139,6 +140,19 @@
     @keyframes blink {
         50% {
             opacity: 0;
+        }
+    }
+
+    /* Voyant qui alterne rouge / orange (footer auth) */
+    @keyframes led {
+        0% {
+            background-color: var(--color-red-500);
+            box-shadow: 0 0 6px 1px var(--color-red-500);
+        }
+
+        50% {
+            background-color: var(--color-orange-500);
+            box-shadow: 0 0 6px 1px var(--color-orange-500);
         }
     }
 }

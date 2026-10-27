@@ -23,8 +23,20 @@ export default function FrontOfficeLayout({ children }: AppLayoutProps) {
                 {children}
             </main>
 
-            <footer className="px-4 py-8 text-center text-sm text-muted-foreground">
-                DevToolbox · Laravel · Inertia · React · TypeScript · Tailwind
+            <footer className="flex items-center justify-center gap-2 px-4 py-8 text-center text-sm text-muted-foreground">
+                <span
+                    aria-hidden
+                    className="size-2 shrink-0 animate-led rounded-full"
+                />
+                Développé par{' '}
+                <a
+                    href="https://ainatrix.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline-offset-2 transition-colors hover:text-foreground hover:underline"
+                >
+                    ainatrix.com
+                </a>
             </footer>
         </div>
     );
