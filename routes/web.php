@@ -8,6 +8,9 @@ use App\Http\Controllers\Tools\PlaceholderController;
 use App\Http\Controllers\Tools\UrlShortenerController;
 use Illuminate\Support\Facades\Route;
 
+// Démo des composants auth (temporaire — Phase 09, à retirer aux Phases 10→12).
+Route::inertia('dev/auth-demo', 'auth/demo')->name('auth.demo');
+
 // Front-office public : dashboard + navigation des outils.
 Route::get('/', DashboardController::class)->name('home');
 Route::get('/dashboard', DashboardController::class)->name('dashboard');

@@ -352,6 +352,45 @@
     );
 }
 
+/* ---------- Auth (maquette : section Auth de style.css) ---------- */
+
+/* Panneau de marque du AuthLayout (maquette : .auth-side) — halos radiaux */
+.auth-side {
+    background:
+        radial-gradient(
+            60% 50% at 20% 8%,
+            color-mix(in srgb, var(--color-accent-1) 20%, transparent),
+            transparent 70%
+        ),
+        radial-gradient(
+            50% 45% at 85% 92%,
+            color-mix(in srgb, var(--color-accent-3) 18%, transparent),
+            transparent 70%
+        ),
+        var(--background);
+}
+
+/* Texte du logo en dégradé animé (maquette : .brand-text) */
+.brand-text {
+    background: linear-gradient(
+        90deg,
+        var(--color-accent-1),
+        var(--color-accent-2),
+        var(--color-accent-3)
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: brand-shimmer 5s linear infinite;
+}
+
+@keyframes brand-shimmer {
+    to {
+        background-position: 200% center;
+    }
+}
+
 /* Rendu Markdown (maquette : .md-preview) */
 .md-preview h1 {
     font-size: 1.5rem;

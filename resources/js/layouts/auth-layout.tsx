@@ -1,17 +1,10 @@
-import AuthLayoutTemplate from '@/layouts/auth/auth-simple-layout';
+import type { PropsWithChildren } from 'react';
+import AuthSplitLayout from '@/layouts/auth/auth-split-layout';
 
-export default function AuthLayout({
-    title = '',
-    description = '',
-    children,
-}: {
-    title?: string;
-    description?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <AuthLayoutTemplate title={title} description={description}>
-            {children}
-        </AuthLayoutTemplate>
-    );
+/**
+ * Layout des pages d'authentification (Phase 09) : split-screen fidèle
+ * aux maquettes .knowledge/design — panneau de marque + carte formulaire.
+ */
+export default function AuthLayout({ children }: PropsWithChildren) {
+    return <AuthSplitLayout>{children}</AuthSplitLayout>;
 }
