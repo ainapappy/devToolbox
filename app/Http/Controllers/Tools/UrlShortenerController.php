@@ -58,7 +58,10 @@ class UrlShortenerController extends Controller
             'code' => $code,
         ]);
 
-        Cache::put(self::cacheKey($code), $url->target_url);
+        Cache::put(self::cacheKey($code), [
+            'target_url' => $url->target_url,
+            'url_id' => $url->id,
+        ]);
 
         return redirect()
             ->route('tools.shortener.index')
@@ -82,6 +85,17 @@ class UrlShortenerController extends Controller
                 'url_id' => $url->id,
             ];
         });
+
+        // Entrées de cache historiques : la valeur n'était que la cible (string).
+        if (is_string($cached)) {
+            $url = Url::query()->where('code', $code)->firstOrFail();
+            $cached = [
+                'target_url' => $cached,
+                'url_id' => $url->id,
+            ];
+            Cache::forget(self::cacheKey($code));
+            Cache::put(self::cacheKey($code), $cached);
+        }
 
         TrackClick::dispatch(
             $cached['url_id'],
