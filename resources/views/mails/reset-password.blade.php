@@ -3,7 +3,7 @@
     'preheader' => 'Votre lien de réinitialisation est prêt — il expire dans 60 minutes.',
     'heroIcon' => 'reset-password',
     'heroAlt' => 'Clé',
-    'heroTitle' => 'Mot de passe oublié&nbsp;?',
+    'heroTitle' => 'Mot de passe oublié ?',
     'heroSubtitle' => 'Pas de panique, on s\'en occupe.<br>Choisissez un nouveau mot de passe en un clin d\'œil.',
     'footerReason' => 'Vous recevez cet email car une demande de réinitialisation a été faite avec cette adresse.',
 ])

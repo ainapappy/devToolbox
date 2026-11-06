@@ -3,7 +3,7 @@
     'preheader' => 'Votre compte est prêt : découvrez les outils qui vont accélérer votre quotidien de dev.',
     'heroIcon' => 'welcome',
     'heroAlt' => 'Étoile',
-    'heroTitle' => 'Bienvenue à bord, '.$userName.'&nbsp;!',
+    'heroTitle' => 'Bienvenue à bord, '.$userName.' !',
     'heroSubtitle' => 'Votre compte est actif.<br>Il est temps de découvrir tout ce que DevToolbox peut faire pour vous.',
     'footerReason' => 'Vous recevez cet email car votre adresse vient d\'être vérifiée.',
 ])
@@ -37,7 +37,9 @@
                                 </table>
                             </td>
                         @endforeach
-                        @if (count($row) === 1)<td width="50%">&nbsp;</td>@endif
+                        @if (count($row) === 1)
+                            <td width="50%">&nbsp;</td>
+                        @endif
                     @endforeach
                 </tr>
             </table>

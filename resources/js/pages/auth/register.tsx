@@ -161,7 +161,7 @@ export default function Register({ passwordRules }: Props) {
                 </Form>
 
                 <p className="mt-5 text-center text-sm text-muted-foreground">
-                    Déjà un compte&nbsp;?{' '}
+                    Déjà un compte ?{' '}
                     <Link
                         href={login()}
                         tabIndex={6}

@@ -85,7 +85,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                             tabIndex={5}
                                             className="text-[0.82rem] font-semibold text-accent-1 hover:underline"
                                         >
-                                            Mot de passe oublié&nbsp;?
+                                            Mot de passe oublié ?
                                         </Link>
                                     )}
                                 </div>
@@ -130,7 +130,7 @@ export default function Login({ status, canResetPassword }: Props) {
                 </Form>
 
                 <p className="mt-5 text-center text-sm text-muted-foreground">
-                    Pas encore de compte&nbsp;?{' '}
+                    Pas encore de compte?{' '}
                     <Link
                         href={register()}
                         tabIndex={5}

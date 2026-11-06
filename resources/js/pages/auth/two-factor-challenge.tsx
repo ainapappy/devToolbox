@@ -158,7 +158,7 @@ export default function TwoFactorChallenge({ emailStatus }: Props) {
                             )}
 
                             <p className="text-center text-sm text-muted-foreground">
-                                Un problème&nbsp;?{' '}
+                                Un problème ?{' '}
                                 <Link
                                     href={login()}
                                     className="font-semibold text-accent-1 hover:underline"
